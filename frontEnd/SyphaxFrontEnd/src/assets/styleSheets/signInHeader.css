@@ -1,0 +1,19 @@
+.SignInHeaderContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 320px;
+    border: 1px solid #f76707;
+    border-radius: 5px;
+    background-color: #fff4e6;
+  }
+
+  .Logo {
+    width: 80px;
+
+  }
+
+  .Title {
+    width: 200px;
+    justify-self: center;
+  }
