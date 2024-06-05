@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';
 import { checkDb } from '../db/userDbManager.mjs';
-import { showUserAdderForm } from './userAdderForm.mjs';
+import { showUserAdderForm, displayUsers } from './userAdderForm.mjs';
 
 let terminalReady = false;
 let terminalResolve;
@@ -105,14 +105,12 @@ function finalizeInitialization(port) {
     }
 }
 
-
 function displayMenu(clearScreen) {
-    if (clearScreen)
-    {
+    if (clearScreen) {
         terminal.clear();
     }
     const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Create user', 'Exit'];
-    terminal.singleColumnMenu(menuItems, (error, response) => {
+    terminal.singleColumnMenu(menuItems, { selectedIndex: 0 }, (error, response) => {
         if (error) {
             terminal.red('An error occurred: ' + error.message + '\n');
             return;
@@ -124,15 +122,14 @@ function displayMenu(clearScreen) {
                 terminal.yellow('Placeholder for show parameters.\n');
                 break;
             case 1:
-                
                 terminal.yellow('Checking the database:\n');
                 checkDb(terminal);
                 break;
             case 2:
-                terminal.yellow('place holder for show user...\n');
+                displayUsers(terminal);
                 break;
             case 3:
-                terminal.yellow('place holder to revoke user:\n');
+                terminal.yellow('Placeholder to revoke user:\n');
                 break;
             case 4:
                 terminal.yellow('Adding a new user:\n');
@@ -143,12 +140,12 @@ function displayMenu(clearScreen) {
                 terminal.yellow('Exiting\n');
                 process.exit(0);
                 break;
-
             default:
                 terminal.red('No valid option selected.\n');
         }
     });
 }
+
 
 
 

@@ -9,8 +9,8 @@ import {
 import { getUserByUserId } from "../db/authModel.mjs";
 
 const rootDir = process.cwd();
-const privateKeyPath = path.join(rootDir, "../certs/jwtRS256.key");
-const publicKeyPath = path.join(rootDir, "../certs/jwtRS256.key.pub");
+const privateKeyPath = path.join(rootDir, "./certs/jwtRS256.key");
+const publicKeyPath = path.join(rootDir, "./certs/jwtRS256.key.pub");
 const privateKey = await fs.readFile(privateKeyPath);
 const publicKey = await fs.readFile(publicKeyPath);
 

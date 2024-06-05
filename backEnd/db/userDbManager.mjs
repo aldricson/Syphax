@@ -106,35 +106,90 @@ export async function checkDb(aTerminal) {
 }
 
 
-// Function to add a user to the database
-export async function addUser(aTerminal, u_name, u_email, u_mobile, plainPassword, u_image_path) {
-  try {
-      const u_user_id = uuidv4();  // Generate a UUID for the user ID
+/**
+ * Adds a new user to the database.
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} u_name - User's name.
+ * @param {string} u_email - User's email.
+ * @param {string} u_mobile - User's mobile number.
+ * @param {string} plainPassword - User's plain text password.
+ * @param {string} u_image_path - Path to the user's image.
+ * @returns {Promise<void>}
+ */
+export async function addUser(terminal, u_name, u_email, u_mobile, plainPassword, u_image_path) {
+    try {
+      const u_user_id = uuidv4(); // Generate a UUID for the user ID
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
-
+  
       const query = `
-          INSERT INTO user (
-              u_user_id, 
-              u_name, 
-              u_email, 
-              u_mobile, 
-              u_password, 
-              u_image
-          ) VALUES (?, ?, ?, ?, ?, ?);
+        INSERT INTO ${DBUSERTABLE} (
+          u_user_id, 
+          u_name, 
+          u_email, 
+          u_mobile, 
+          u_password, 
+          u_image
+        ) VALUES (?, ?, ?, ?, ?, ?);
       `;
-
+  
       const values = [u_user_id, u_name, u_email, u_mobile, hashedPassword, u_image_path];
       const [result] = await pool.query(query, values);
       
-      aTerminal.green(`User successfully added with UUID: ${u_user_id}\n`);
+      terminal.green(`User successfully added with UUID: ${u_user_id}\n`);
       return result;
-  } catch (error) {
-     aTerminal.red(`Error adding user: ${error.message}\n`);
+    } catch (error) {
+      terminal.red(`Error adding user: ${error.message}\n`);
       return null;
+    }
   }
-}
 
+  /**
+ * Retrieves all users from the database.
+ * @param {Object} terminal - The terminal interface.
+ * @returns {Promise<Array>} An array of user objects.
+ */
+export async function showUsers(terminal) {
+    try {
+      const query = `SELECT * FROM ${DBUSERTABLE};`;
+      const [rows] = await pool.query(query);
+  
+      terminal.green(`Retrieved ${rows.length} users from the database.\n`);
+      return rows;
+    } catch (error) {
+      terminal.red(`Error retrieving users: ${error.message}\n`);
+      return [];
+    }
+  }
+
+  /**
+ * Revokes a user by name by setting their status to inactive (0).
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to revoke.
+ * @returns {Promise<void>}
+ */
+export async function revokeUserByName(terminal, userName) {
+    try {
+      const query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_status = 0
+        WHERE u_name = ?;
+      `;
+  
+      const values = [userName];
+      const [result] = await pool.query(query, values);
+  
+      if (result.affectedRows === 0) {
+        terminal.red(`No user found with the name '${userName}'.\n`);
+      } else {
+        terminal.green(`User '${userName}' successfully revoked.\n`);
+      }
+      return result;
+    } catch (error) {
+      terminal.red(`Error revoking user: ${error.message}\n`);
+      return null;
+    }
+  }
 
 
 // Export the pool for use elsewhere in the application

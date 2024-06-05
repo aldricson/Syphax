@@ -1,7 +1,14 @@
 // Configuration module for environment variables and server settings
 import dotenv from 'dotenv';
+import path from 'path';
 
-const result=dotenv.config({ path: '../.env' }); // Load environment variables
+
+const __dirname = path.resolve();
+const envPath = path.join(__dirname, '.env');
+console.log('Resolved path:', envPath);
+
+//const result=dotenv.config({ path: '../.env' }); // Load environment variables
+const result=dotenv.config({ path: envPath }); // Load environment variables
 
 if (result.error)
 {
