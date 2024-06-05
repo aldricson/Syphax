@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';
 import { checkDb } from '../db/userDbManager.mjs';
-import { showUserAdderForm, displayUsers, displayRevokeUserByName, waitForKeyPress  } from './userAdderForm.mjs';
+import { showUserAdderForm, displayUsers, displayRevokeUserByName, displayRestoreUserByName, waitForKeyPress  } from './userAdderForm.mjs';
 
 let terminalReady = false;
 let terminalResolve;
@@ -134,8 +134,8 @@ function displayMenu(clearScreen) {
                 displayRevokeUserByName(terminal);
                 break;
             case 4:
-                terminal.yellow('Placeholder for restoring user.\n');
-                waitForKeyPress(terminal);
+                terminal.yellow('Restoring a user.\n');
+                displayRestoreUserByName(terminal);
                 break;
             case 5:
                 terminal.yellow('Adding a new user:\n');

@@ -242,6 +242,87 @@ export async function revokeUserByName(terminal, userName) {
       return null;
     }
   }
+
+
+/**
+ * Restore a user by name by setting their status to active (1).
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to revoke.
+ * @returns {Promise<void>}
+ */
+export async function restoreUserByName(terminal, userName) {
+    try {
+      // Attempt to revoke user by exact name
+      let query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_status = 0
+        WHERE u_name = ?;
+      `;
+  
+      let values = [userName];
+      let [result] = await pool.query(query, values);
+  
+      if (result.affectedRows === 0) {
+        terminal.red(`No user found with the exact name '${userName}'.\n`);
+        
+        // Perform a Soundex search for similar names
+        terminal.yellow('Performing a Soundex search for similar names...\n');
+        query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+        const [rows] = await pool.query(query, values);
+  
+        if (rows.length === 0) {
+          terminal.red('No similar names found.\n');
+          waitForKeyPress(terminal);
+          return null;
+        } else {
+          terminal.cyan('Found similar names:\n');
+          const similarNames = rows.map(row => row.u_name);
+          similarNames.forEach((name, index) => {
+            terminal.cyan(`${index + 1}: ${name}\n`);
+          });
+  
+          // Ask the user to select a name from the list
+          terminal('Select a user by number: ');
+          const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+  
+          if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+            terminal.red('Invalid selection.\n');
+            return null;
+          }
+  
+          const selectedName = similarNames[selectedNumber];
+          terminal.yellow(`Restoring user '${selectedName}'...\n`);
+  
+          // Attempt to revoke the selected user
+          values = [selectedName];
+          query = `
+            UPDATE ${DBUSERTABLE}
+            SET u_status = 1
+            WHERE u_name = ?;
+          `;
+          [result] = await pool.query(query, values);
+  
+          if (result.affectedRows === 0) {
+            terminal.red(`Failed to restore user '${selectedName}'.\n`);
+          } else {
+            terminal.green(`User '${selectedName}' successfully restored.\n`);
+          }
+        }
+      } else {
+        terminal.green(`User '${userName}' successfully restored.\n`);
+      }
+  
+      return result;
+    } catch (error) {
+      terminal.red(`Error restoring user: ${error.message}\n`);
+      return null;
+    }
+  }
   
 
 // Export the pool for use elsewhere in the application

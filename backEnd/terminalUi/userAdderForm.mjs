@@ -1,7 +1,7 @@
 import fs from 'fs'; // Import the file system module
 import path from 'path';
 import { inputField } from "./inputField.mjs";
-import { addUser,showUsers,revokeUserByName } from '../db/userDbManager.mjs';
+import { addUser,showUsers,revokeUserByName, restoreUserByName } from '../db/userDbManager.mjs';
 import { displayMenu } from './terminalUi.mjs'; 
 
 /**
@@ -82,14 +82,12 @@ export async function selectFile(terminal, dir = process.cwd()) {
     await addUser(terminal, name, email, mobile, password, imagePath);
     
     terminal.green('User created successfully!\n');
-    terminal('Press any key to continue...\n');
-    terminal.grabInput(true);
     waitForKeyPress(terminal);
   }
 
   export async function displayUsers(terminal) {
     terminal.clear();
-    terminal.moveTo(1, 1, 'User List\n');
+    terminal.moveTo(1, 1, 'User List:\n');
   
     const users = await showUsers(terminal);
   
@@ -132,8 +130,16 @@ export async function selectFile(terminal, dir = process.cwd()) {
 
  export async function displayRevokeUserByName(terminal){
     terminal.clear();
-    terminal.moveTo(1, 1, 'Create New User\n');
+    terminal.moveTo(1, 1, 'Revoke a User\n');
     const name = await inputField(terminal,'User name: ', { cancelable: false });
     revokeUserByName(terminal,name);
     waitForKeyPress(terminal)
  }
+
+ export async function displayRestoreUserByName(terminal){
+  terminal.clear();
+  terminal.moveTo(1, 1, 'Restore a user\n');
+  const name = await inputField(terminal,'User name: ', { cancelable: false });
+  restoreUserByName(terminal,name);
+  waitForKeyPress(terminal)
+}
