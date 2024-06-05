@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';
 import { checkDb } from '../db/userDbManager.mjs';
-import { showUserAdderForm, displayUsers } from './userAdderForm.mjs';
+import { showUserAdderForm, displayUsers, displayRevokeUserByName  } from './userAdderForm.mjs';
 
 let terminalReady = false;
 let terminalResolve;
@@ -129,11 +129,11 @@ function displayMenu(clearScreen) {
                 displayUsers(terminal);
                 break;
             case 3:
-                terminal.yellow('Placeholder to revoke user:\n');
+                terminal.yellow('Revoking a user:\n');
+                displayRevokeUserByName(terminal);
                 break;
             case 4:
                 terminal.yellow('Adding a new user:\n');
-                terminal.clear();
                 showUserAdderForm(terminal);
                 break;
             case 5:

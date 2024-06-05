@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 // Import the mysql module with promise support
 import mysql from "mysql2/promise";
 import { getTerminal, displayMenu } from '../terminalUi/terminalUi.mjs';
+import { waitForKeyPress } from '../terminalUi/userAdderForm.mjs';
 import { DBIP, DBNAME, DBUSER, DBPASSWORD, CONNECTLIMIT, DBUSERTABLE} from '../mainServer/config.mjs';
 
 //create a noDbPool with no DB in case we need to recreate the db
@@ -162,35 +163,86 @@ export async function showUsers(terminal) {
     }
   }
 
-  /**
+/**
  * Revokes a user by name by setting their status to inactive (0).
+ * If the exact name is not found, performs a Soundex search to find similar names.
  * @param {Object} terminal - The terminal interface.
  * @param {string} userName - The name of the user to revoke.
  * @returns {Promise<void>}
  */
 export async function revokeUserByName(terminal, userName) {
     try {
-      const query = `
+      // Attempt to revoke user by exact name
+      let query = `
         UPDATE ${DBUSERTABLE}
         SET u_status = 0
         WHERE u_name = ?;
       `;
   
-      const values = [userName];
-      const [result] = await pool.query(query, values);
+      let values = [userName];
+      let [result] = await pool.query(query, values);
   
       if (result.affectedRows === 0) {
-        terminal.red(`No user found with the name '${userName}'.\n`);
+        terminal.red(`No user found with the exact name '${userName}'.\n`);
+        
+        // Perform a Soundex search for similar names
+        terminal.yellow('Performing a Soundex search for similar names...\n');
+        query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+        const [rows] = await pool.query(query, values);
+  
+        if (rows.length === 0) {
+          terminal.red('No similar names found.\n');
+          waitForKeyPress(terminal);
+          return null;
+        } else {
+          terminal.cyan('Found similar names:\n');
+          const similarNames = rows.map(row => row.u_name);
+          similarNames.forEach((name, index) => {
+            terminal.cyan(`${index + 1}: ${name}\n`);
+          });
+  
+          // Ask the user to select a name from the list
+          terminal('Select a user by number: ');
+          const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+  
+          if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+            terminal.red('Invalid selection.\n');
+            return null;
+          }
+  
+          const selectedName = similarNames[selectedNumber];
+          terminal.yellow(`Revoking user '${selectedName}'...\n`);
+  
+          // Attempt to revoke the selected user
+          values = [selectedName];
+          query = `
+            UPDATE ${DBUSERTABLE}
+            SET u_status = 0
+            WHERE u_name = ?;
+          `;
+          [result] = await pool.query(query, values);
+  
+          if (result.affectedRows === 0) {
+            terminal.red(`Failed to revoke user '${selectedName}'.\n`);
+          } else {
+            terminal.green(`User '${selectedName}' successfully revoked.\n`);
+          }
+        }
       } else {
         terminal.green(`User '${userName}' successfully revoked.\n`);
       }
+  
       return result;
     } catch (error) {
       terminal.red(`Error revoking user: ${error.message}\n`);
       return null;
     }
   }
-
+  
 
 // Export the pool for use elsewhere in the application
 export default pool;

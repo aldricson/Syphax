@@ -1,8 +1,27 @@
 import fs from 'fs'; // Import the file system module
 import path from 'path';
 import { inputField } from "./inputField.mjs";
-import { addUser,showUsers } from '../db/userDbManager.mjs';
+import { addUser,showUsers,revokeUserByName } from '../db/userDbManager.mjs';
 import { displayMenu } from './terminalUi.mjs'; 
+
+/**
+ * Waits for a key press and then returns to the menu.
+ * @param {Object} terminal - The terminal interface.
+ */
+export function waitForKeyPress(terminal) {
+  terminal('\nPress any key to continue...\n');
+  terminal.grabInput(true);
+
+  const keyHandler = () => {
+    terminal.grabInput(false);
+    terminal.removeListener('key', keyHandler); // Remove the event listener
+    terminal.clear();
+    displayMenu(true);
+  };
+
+  terminal.on('key', keyHandler);
+}
+
 
 /**
  * Prompts the user to select a file from the current directory or navigate into directories.
@@ -65,17 +84,7 @@ export async function selectFile(terminal, dir = process.cwd()) {
     terminal.green('User created successfully!\n');
     terminal('Press any key to continue...\n');
     terminal.grabInput(true);
-  
-    // Define a key event handler function
-    const keyHandler = () => {
-      terminal.grabInput(false);
-      terminal.removeListener('key', keyHandler); // Remove the event listener
-      terminal.clear();
-      displayMenu(true);
-    };
-  
-    // Add the key event listener
-    terminal.on('key', keyHandler);
+    waitForKeyPress(terminal);
   }
 
   export async function displayUsers(terminal) {
@@ -118,17 +127,13 @@ export async function selectFile(terminal, dir = process.cwd()) {
       });
     }
   
-    terminal('\nPress any key to continue...\n');
-    terminal.grabInput(true);
-  
-    // Define a key event handler function
-    const keyHandler = () => {
-      terminal.grabInput(false);
-      terminal.removeListener('key', keyHandler); // Remove the event listener
-      terminal.clear();
-      displayMenu(true);
-    };
-  
-    // Add the key event listener
-    terminal.on('key', keyHandler);
+    waitForKeyPress(terminal)
   }
+
+ export async function displayRevokeUserByName(terminal){
+    terminal.clear();
+    terminal.moveTo(1, 1, 'Create New User\n');
+    const name = await inputField(terminal,'User name: ', { cancelable: false });
+    revokeUserByName(terminal,name);
+    waitForKeyPress(terminal)
+ }
