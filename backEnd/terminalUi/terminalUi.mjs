@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';
 import { checkDb } from '../db/userDbManager.mjs';
-import { showUserAdderForm, displayUsers, displayRevokeUserByName  } from './userAdderForm.mjs';
+import { showUserAdderForm, displayUsers, displayRevokeUserByName, waitForKeyPress  } from './userAdderForm.mjs';
 
 let terminalReady = false;
 let terminalResolve;
@@ -109,7 +109,7 @@ function displayMenu(clearScreen) {
     if (clearScreen) {
         terminal.clear();
     }
-    const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Create user', 'Exit'];
+    const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Restore user', 'Create user', 'Exit'];
     terminal.singleColumnMenu(menuItems, { selectedIndex: 0 }, (error, response) => {
         if (error) {
             terminal.red('An error occurred: ' + error.message + '\n');
@@ -120,6 +120,7 @@ function displayMenu(clearScreen) {
         switch (response.selectedIndex) {
             case 0:
                 terminal.yellow('Placeholder for show parameters.\n');
+                waitForKeyPress(terminal);
                 break;
             case 1:
                 terminal.yellow('Checking the database:\n');
@@ -133,15 +134,20 @@ function displayMenu(clearScreen) {
                 displayRevokeUserByName(terminal);
                 break;
             case 4:
+                terminal.yellow('Placeholder for restoring user.\n');
+                waitForKeyPress(terminal);
+                break;
+            case 5:
                 terminal.yellow('Adding a new user:\n');
                 showUserAdderForm(terminal);
                 break;
-            case 5:
+            case 6:
                 terminal.yellow('Exiting\n');
                 process.exit(0);
                 break;
             default:
                 terminal.red('No valid option selected.\n');
+                waitForKeyPress(terminal);
         }
     });
 }
