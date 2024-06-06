@@ -14,8 +14,6 @@ constructor() {
   onHandleDashBoardTabsheetChanged = (event, newValue) => {
     this.tabSheetIndex = newValue;
   };
+}
 
-
-  
-  }
-  
+export const dashBoardStore = new DashBoardStore();

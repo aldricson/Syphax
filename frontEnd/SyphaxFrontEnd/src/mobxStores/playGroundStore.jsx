@@ -1,4 +1,4 @@
-import { makeObservable, observable, computed, action } from 'mobx'
+import { makeObservable, observable, action } from 'mobx'
 
 export default class PlayGroundStore {
     buttonState = false;
@@ -20,5 +20,6 @@ export default class PlayGroundStore {
       this.buttonStateAsText = 'Yes';
     }
    
-  
   }
+
+  export const playstore = new PlayGroundStore();

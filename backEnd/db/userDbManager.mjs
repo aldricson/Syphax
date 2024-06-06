@@ -256,7 +256,7 @@ export async function restoreUserByName(terminal, userName) {
       // Attempt to revoke user by exact name
       let query = `
         UPDATE ${DBUSERTABLE}
-        SET u_status = 0
+        SET u_status = 1
         WHERE u_name = ?;
       `;
   

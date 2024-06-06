@@ -1,12 +1,14 @@
-import React from 'react';
+// src/components/ProtectedRoutes/ProtectedRoute.jsx
 import { Route, Navigate } from 'react-router-dom';
 import { observer } from 'mobx-react';
-import authStore from '../mobxStores/authStore';
+import authStore from '../../mobxStores/authStore';
 
-const ProtectedRoute = observer(({ element: Component, ...rest }) => (
+const ProtectedRoute = observer(({ component: Component, ...rest }) => (
   <Route
     {...rest}
-    element={authStore.token ? Component : <Navigate to="/login" />}
+    element={
+      authStore.token ? <Component {...rest} /> : <Navigate to="/login" />
+    }
   />
 ));
 

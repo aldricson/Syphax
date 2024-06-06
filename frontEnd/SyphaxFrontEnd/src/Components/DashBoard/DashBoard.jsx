@@ -3,7 +3,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { observer } from 'mobx-react';
 import { dashBoardStore } from '../../mobxStores/dashBoardStore';
-import { CustomTabPanel } from './CustomTabPanel.jsx';
+import  CustomTabPanel  from './CustomTabPanel.jsx';
 
 
 // Accessibility props function

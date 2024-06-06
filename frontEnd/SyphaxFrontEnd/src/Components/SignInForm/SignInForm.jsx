@@ -4,22 +4,35 @@ import { StyledEngineProvider } from '@mui/material/styles';
 import '../../assets/styleSheets/signInForm.css'
 import SignInHeader from './SignInHeader.jsx'
 import { observer } from 'mobx-react';
-import { LoginStore } from '../../mobxStores/loginStore.jsx';
+import { loginStore } from '../../mobxStores/loginStore.jsx';
 import {
   Checkbox,
   TextField,
   FormControlLabel,
   Paper,
-  Button
+  Button,
+  Box
 } from '@mui/material';
 
-const loginStore = new LoginStore();
+
 
 const SignInForm = observer(function SignInForm() {
     return (
         <div>   
-                user: {loginStore.userName}
-                password: {loginStore.userPasssword}
+           <Box
+             id="loginErrorTextField"
+             sx={{
+               color: 'red',
+               border: loginStore.errorBorder,
+               textAlign: 'center',
+               padding: '8px',
+               marginBottom: '16px',
+             }}
+           >
+             {loginStore.errorText}
+           </Box>
+                
+                
                 <Paper className="GridContainer">
                 
     

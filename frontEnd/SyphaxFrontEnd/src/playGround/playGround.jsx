@@ -2,9 +2,8 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { observer } from 'mobx-react';
-import  PlayGroundStore   from "../mobxStores/playGroundStore.jsx";
+import  { playstore }   from "../mobxStores/playGroundStore.jsx";
 
-const playstore = new PlayGroundStore();
 
 const PlayGroundComponent = observer (function PlayGroundComponent () {
     return (
