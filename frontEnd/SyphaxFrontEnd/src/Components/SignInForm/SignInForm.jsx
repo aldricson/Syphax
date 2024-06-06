@@ -19,6 +19,7 @@ const SignInForm = observer(function SignInForm() {
     return (
         <div>   
                 user: {loginStore.userName}
+                password: {loginStore.userPasssword}
                 <Paper className="GridContainer">
                 
     
@@ -32,7 +33,7 @@ const SignInForm = observer(function SignInForm() {
                     <TextField className = "passwordField" 
                                label     = "Password" 
                                type      = {'password'}
-                               onChange  = {loginStore.onUserNameChanged}>
+                               onChange  = {loginStore.onPasswordChanged}>
                     </TextField>
     
                     <FormControlLabel className="rememberMeField"

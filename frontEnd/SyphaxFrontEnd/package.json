@@ -14,10 +14,12 @@
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.15",
     "@tsparticles/react": "^3.0.0",
+    "axios": "^1.7.2",
     "mobx": "^6.12.3",
     "mobx-react": "^9.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.1",
     "react-tsparticles": "^2.12.2",
     "tsparticles": "^3.3.0"
   },

@@ -1,4 +1,6 @@
-import { makeObservable, observable, computed, action } from 'mobx'
+import { makeObservable, observable, action } from 'mobx'
+import { login } from '../apis/authApi';
+import authStore from './authStore';
 
 
 export class LoginStore {
@@ -19,7 +21,6 @@ export class LoginStore {
       onSubmitLogin      : action    ,
     });
   }
-
   
   onUserNameChanged = (event) =>
   {
@@ -31,14 +32,21 @@ export class LoginStore {
     this.userPasssword = event.target.value;
   }
 
-  onSubmitLogin = () =>
-  {
-
+  onSubmitLogin = async () => {
+    try {
+      const data = await login(this.userName, this.userPasssword, this.stayLogged);
+      authStore.setToken(data.accessToken);
+      authStore.setUser(data.user);
+      if (this.stayLogged) {
+        localStorage.setItem('SyphaxToken', data.accessToken);
+      }
+    } catch (error) {
+      console.error('Login failed', error);
+    }
   }
-  
+
   onHandleStayLogged = (event) => 
   {
-    
     this.stayLogged = event.target.checked ;
     this.stayLogged? this.stayLoggedAsText='Yes' : this.stayLoggedAsText = 'No'; 
     console.log("enter on handleStayLogged:"+this.stayLogged );
