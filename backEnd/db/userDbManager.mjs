@@ -325,5 +325,170 @@ export async function restoreUserByName(terminal, userName) {
   }
   
 
+  /**
+ * Deletes a user by name by setting their deleted status to true (1).
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to delete.
+ * @returns {Promise<void>}
+ */
+export async function setUserDeletableByName(terminal, userName) {
+  try {
+      // Attempt to delete user by exact name
+      let query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_deleted_status = 1
+        WHERE u_name = ?;
+      `;
+
+      let values = [userName];
+      let [result] = await pool.query(query, values);
+
+      if (result.affectedRows === 0) {
+          terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+          // Perform a Soundex search for similar names
+          terminal.yellow('Performing a Soundex search for similar names...\n');
+          query = `
+            SELECT u_name
+            FROM ${DBUSERTABLE}
+            WHERE SOUNDEX(u_name) = SOUNDEX(?);
+          `;
+          const [rows] = await pool.query(query, values);
+
+          if (rows.length === 0) {
+              terminal.red('No similar names found.\n');
+              waitForKeyPress(terminal);
+              return null;
+          } else {
+              terminal.cyan('Found similar names:\n');
+              const similarNames = rows.map(row => row.u_name);
+              similarNames.forEach((name, index) => {
+                  terminal.cyan(`${index + 1}: ${name}\n`);
+              });
+
+              // Ask the user to select a name from the list
+              terminal('Select a user by number: ');
+              const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+              if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                  terminal.red('Invalid selection.\n');
+                  return null;
+              }
+
+              const selectedName = similarNames[selectedNumber];
+              terminal.yellow(`Setting user deletable'${selectedName}'...\n`);
+
+              // Attempt to delete the selected user
+              values = [selectedName];
+              query = `
+                UPDATE ${DBUSERTABLE}
+                SET u_deleted_status = 1
+                WHERE u_name = ?;
+              `;
+              [result] = await pool.query(query, values);
+
+              if (result.affectedRows === 0) {
+                  terminal.red(`Failed to set user deletable'${selectedName}'.\n`);
+              } else {
+                  terminal.green(`User '${selectedName}' successfully setted deletable.\n`);
+              }
+          }
+      } else {
+          terminal.green(`User '${userName}' successfully setted deletable.\n`);
+      }
+
+      return result;
+  } catch (error) {
+      terminal.red(`Error deleting user: ${error.message}\n`);
+      return null;
+  }
+}
+
+
+  /**
+ * Permanently deletes a user by name from the database.
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to delete.
+ * @returns {Promise<void>}
+ */
+export async function deleteUserByName(terminal, userName) {
+  try {
+      // Attempt to delete user by exact name
+      let query = `
+        DELETE FROM ${DBUSERTABLE}
+        WHERE u_name = ?;
+      `;
+
+      let values = [userName];
+      let [result] = await pool.query(query, values);
+
+      if (result.affectedRows === 0) {
+          terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+          // Perform a Soundex search for similar names
+          terminal.yellow('Performing a Soundex search for similar names...\n');
+          query = `
+            SELECT u_name
+            FROM ${DBUSERTABLE}
+            WHERE SOUNDEX(u_name) = SOUNDEX(?);
+          `;
+          const [rows] = await pool.query(query, values);
+
+          if (rows.length === 0) {
+              terminal.red('No similar names found.\n');
+              waitForKeyPress(terminal);
+              return null;
+          } else {
+              terminal.cyan('Found similar names:\n');
+              const similarNames = rows.map(row => row.u_name);
+              similarNames.forEach((name, index) => {
+                  terminal.cyan(`${index + 1}: ${name}\n`);
+              });
+
+              // Ask the user to select a name from the list
+              terminal('Select a user by number: ');
+              const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+              if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                  terminal.red('Invalid selection.\n');
+                  return null;
+              }
+
+              const selectedName = similarNames[selectedNumber];
+              terminal.yellow(`Deleting user '${selectedName}'...\n`);
+
+              // Attempt to delete the selected user
+              values = [selectedName];
+              query = `
+                DELETE FROM ${DBUSERTABLE}
+                WHERE u_name = ?;
+              `;
+              [result] = await pool.query(query, values);
+
+              if (result.affectedRows === 0) {
+                  terminal.red(`Failed to delete user '${selectedName}'.\n`);
+              } else {
+                  terminal.green(`User '${selectedName}' successfully deleted.\n`);
+              }
+          }
+      } else {
+          terminal.green(`User '${userName}' successfully deleted.\n`);
+      }
+
+      // Reorganize the table indexes after deletion
+      await pool.query(`OPTIMIZE TABLE ${DBUSERTABLE}`);
+      terminal.green(`Table indexes reorganized successfully.\n`);
+
+      return result;
+  } catch (error) {
+      terminal.red(`Error deleting user: ${error.message}\n`);
+      return null;
+  }
+}
+
+
+
 // Export the pool for use elsewhere in the application
 export default pool;

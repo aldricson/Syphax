@@ -4,7 +4,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';
 import { checkDb } from '../db/userDbManager.mjs';
-import { showUserAdderForm, displayUsers, displayRevokeUserByName, displayRestoreUserByName, waitForKeyPress  } from './userAdderForm.mjs';
+import { showUserAdderForm,
+         displayUsers,
+         displayRevokeUserByName,
+         displayRestoreUserByName,
+         displaySetUserDeletableByName,
+         displayDeleteUserByName,
+         waitForKeyPress  } from './userAdderForm.mjs';
 
 let terminalReady = false;
 let terminalResolve;
@@ -109,7 +115,7 @@ function displayMenu(clearScreen) {
     if (clearScreen) {
         terminal.clear();
     }
-    const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Restore user', 'Create user', 'Exit'];
+    const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Restore user', 'Create user', 'Set user deletable', 'Delete user', 'Exit'];
     terminal.singleColumnMenu(menuItems, { selectedIndex: 0 }, (error, response) => {
         if (error) {
             terminal.red('An error occurred: ' + error.message + '\n');
@@ -142,6 +148,14 @@ function displayMenu(clearScreen) {
                 showUserAdderForm(terminal);
                 break;
             case 6:
+                terminal.yellow('Set user delatable\n');
+                displaySetUserDeletableByName(terminal);
+                break;
+            case 7:
+                terminal.yellow('Delete user.\n');
+                displayDeleteUserByName(terminal);
+                break;
+            case 8:
                 terminal.yellow('Exiting\n');
                 process.exit(0);
                 break;

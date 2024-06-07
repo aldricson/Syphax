@@ -39,8 +39,8 @@ const SignInForm = observer(function SignInForm() {
                     <SignInHeader/>
 
                     <TextField className = "UserField"
-                               label     = "Username"
-                               onChange={loginStore.onUserNameChanged}>        
+                               label     = "User e-mail"
+                               onChange={loginStore.onUserEmailChanged}>        
                     </TextField>
 
                     <TextField className = "passwordField" 

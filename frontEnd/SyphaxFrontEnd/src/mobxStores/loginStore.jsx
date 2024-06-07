@@ -6,7 +6,7 @@ export class LoginStore {
   stayLogged = false;
   loginSucces = false;
   stayLoggedAsText = 'No';
-  userName = '';
+  userEmail = '';
   userPasssword = '';
   errorText = '';
   errorBorder = '0px';
@@ -15,20 +15,20 @@ export class LoginStore {
     makeObservable(this, {
       stayLogged: observable,
       stayLoggedAsText: observable,
-      userName: observable,
+      userEmail: observable,
       userPasssword: observable,
       errorText: observable,
       errorBorder: observable,
       loginSucces: observable,
-      onUserNameChanged: action,
+      onUserEmailChanged: action,
       onPasswordChanged: action,
       onHandleStayLogged: action,
       onSubmitLogin: action,
     });
   }
 
-  onUserNameChanged = (event) => {
-    this.userName = event.target.value;
+  onUserEmailChanged = (event) => {
+    this.userEmail = event.target.value;
   };
 
   onPasswordChanged = (event) => {
@@ -37,7 +37,7 @@ export class LoginStore {
 
   onSubmitLogin = async () => {
     try {
-      const data = await login(this.userName, this.userPasssword, this.stayLogged);
+      const data = await login(this.userEmail, this.userPasssword, this.stayLogged);
       runInAction(() => {
         authStore.setToken(data.accessToken);
         authStore.setUser(data.user);

@@ -8,17 +8,19 @@ import { observer } from 'mobx-react';
 
 
 const App = observer(() => {
-  return (
-    <Router>
-      <Routes>
-        {loginStore.loginSuccess ? (
-          <Route path="/" element={<ProtectedRoute component={DashBoard} />} />
-        ) : (
-          <Route path="/" element={<SignInForm />} />
+ return (
+  <div>
+     {loginStore.loginSucces ? (
+          <DashBoard/>
+        ) 
+        : 
+        (
+          <SignInForm />
         )}
-      </Routes>
-    </Router>
-  );
+  </div>
+ );
+ 
+
 });
 
 export default App

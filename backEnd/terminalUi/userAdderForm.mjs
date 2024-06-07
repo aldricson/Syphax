@@ -1,7 +1,7 @@
 import fs from 'fs'; // Import the file system module
 import path from 'path';
 import { inputField } from "./inputField.mjs";
-import { addUser,showUsers,revokeUserByName, restoreUserByName } from '../db/userDbManager.mjs';
+import { addUser,showUsers,revokeUserByName, restoreUserByName, setUserDeletableByName, deleteUserByName } from '../db/userDbManager.mjs';
 import { displayMenu } from './terminalUi.mjs'; 
 
 /**
@@ -141,5 +141,23 @@ export async function selectFile(terminal, dir = process.cwd()) {
   terminal.moveTo(1, 1, 'Restore a user\n');
   const name = await inputField(terminal,'User name: ', { cancelable: false });
   restoreUserByName(terminal,name);
+  waitForKeyPress(terminal)
+}
+
+
+export async function displaySetUserDeletableByName(terminal){
+  terminal.clear();
+  terminal.moveTo(1, 1, 'Set a user deletable:\n');
+  const name = await inputField(terminal,'User name: ', { cancelable: false });
+  setUserDeletableByName(terminal,name);
+  waitForKeyPress(terminal)
+}
+
+
+export async function displayDeleteUserByName(terminal){
+  terminal.clear();
+  terminal.moveTo(1, 1, 'Delete user:\n');
+  const name = await inputField(terminal,'User name: ', { cancelable: false });
+  deleteUserByName(terminal,name);
   waitForKeyPress(terminal)
 }
