@@ -111,7 +111,7 @@ function finalizeInitialization(port) {
     }
 }
 
-function displayMenu(clearScreen) {
+async function displayMenu(clearScreen) {
     if (clearScreen) {
         terminal.clear();
     }

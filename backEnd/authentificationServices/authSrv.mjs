@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { sign } from "./jwtService.mjs";
 import { cryptoAESEncryption } from "./cryptoService.mjs";
 import { getUserByEmail } from "../db/authModel.mjs";
-import { displayError, displaySucces } from "../terminalUi/terminalUi.mjs";
+import { displayError, displayMenu, displaySucces } from "../terminalUi/terminalUi.mjs";
 import { sendMessageToClient } from "../mainServer/websocketUtils.mjs"; 
 
 
@@ -60,7 +60,7 @@ export async function authenticateUser(email, password, expiryTime) {
     const refreshToken = await sign(encUserId, expiryTime).catch(() => null);
     //2 minutes
     const accessToken = await sign(encUser, 2 * 60).catch(() => null);
-    displayMenu(true);
+    await displayMenu(true);
     return {
       refreshToken: refreshToken,
       accessToken: accessToken,

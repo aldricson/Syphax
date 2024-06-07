@@ -3,7 +3,7 @@ import { verifyRefreshToken } from "./jwtService.mjs";
 // Imports the 'sendErrorResponse' function from a global utility module to handle error responses uniformly.
 import { sendErrorResponse } from "../globals/globals.mjs";
 // Imports the WebSocket utility to send messages to specific clients.
-import { sendMessageToClient } from '../websocketUtils.mjs';
+import { sendMessageToClient } from '../mainServer/websocketUtils.mjs';
 
 /**
  * @brief Middleware to verify JWT tokens for routes requiring authentication.
