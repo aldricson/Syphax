@@ -35,9 +35,11 @@ export class LoginStore {
     this.userPasssword = event.target.value;
   };
 
+
   onSubmitLogin = async () => {
     try {
-      const data = await login(this.userEmail, this.userPasssword, this.stayLogged);
+      const response = await login(this.userEmail, this.userPasssword, this.stayLogged);
+      const data = response.auth; // Correctly access the auth object
       runInAction(() => {
         authStore.setToken(data.accessToken);
         authStore.setUser(data.user);
@@ -57,6 +59,7 @@ export class LoginStore {
       console.error('Login failed', error);
     }
   };
+
 
   onHandleStayLogged = (event) => {
     this.stayLogged = event.target.checked;

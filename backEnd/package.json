@@ -19,7 +19,9 @@
     "get-pixels": "^3.3.3",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.9.7",
+    "socket.io": "^4.7.5",
     "terminal-kit": "^3.1.1",
+    "tough-cookie": "^4.1.4",
     "uuid": "^9.0.1"
   }
 }

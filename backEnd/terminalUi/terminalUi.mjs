@@ -166,9 +166,21 @@ function displayMenu(clearScreen) {
     });
 }
 
+function displayError(clearScreen,message) {
+    if (clearScreen) {
+        terminal.clear();
+    }
+    terminal.red(message);
+}
 
+function displaySucces(clearScreen,message) {
+    if (clearScreen) {
+        terminal.clear();
+    }
+    terminal.green(message);
+}
 
 
 // Ensure all functions I need are correctly exported
 
-export { initializeTerminal, updateProgressBar, finalizeInitialization, getTerminal,  displayMenu};
+export { initializeTerminal, updateProgressBar, finalizeInitialization, getTerminal,  displayMenu, displayError, displaySucces};
