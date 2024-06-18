@@ -1,0 +1,1 @@
+Contains WebSocket client setup for real-time communication with the backend server.

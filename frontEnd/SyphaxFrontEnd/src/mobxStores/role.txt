@@ -1,0 +1,1 @@
+Contains MobX stores for managing application state.

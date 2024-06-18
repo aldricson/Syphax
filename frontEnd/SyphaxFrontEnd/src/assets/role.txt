@@ -1,0 +1,1 @@
+Main directory assets (images, video, sounds, stylesheets)

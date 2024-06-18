@@ -1,3 +1,5 @@
+// role: This file provides functions for AES encryption and decryption using Node.js crypto module.
+
 // Importing the 'crypto' module from Node.js which provides cryptographic functionality.
 import crypto from "crypto";
 

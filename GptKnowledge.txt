@@ -1,0 +1,2135 @@
+frontEnd : Root directory of the frontEnd project, containing all frontend-related files and subdirectories.
+frontEnd/SyphaxFrontEnd : Main directory for the Syphax frontend application, containing source code and configuration files.
+frontEnd/SyphaxFrontEnd/vite.config.js
+
+// role: Configuration file for Vite, setting up the build and development environment for the Syphax frontend application.
+
+import { defineConfig } from 'vite'; // Import defineConfig function from Vite for creating configuration objects
+import reactSupport from '@vitejs/plugin-react'; // Import the React plugin for Vite to enable React support
+
+/**
+ * Vite configuration.
+ * 
+ * This configuration file sets up the Vite build tool for the Syphax frontend application.
+ * It includes support for React, Babel parser options for decorators and class properties, and specifies the development server port.
+ * 
+ * @module vite.config
+ */
+export default defineConfig({
+  plugins: [
+    reactSupport({
+      babel: {
+        parserOpts: {
+          plugins: ['decorators-legacy', 'classProperties'] // Enable legacy decorators and class properties support in Babel
+        }
+      }
+    })
+  ],
+  server: {
+    port: 5173 // Set the development server to run on port 5173
+  }
+});
+
+
+frontEnd/SyphaxFrontEnd/src : Source directory for the Syphax frontend application, containing React components, stores, and styles.
+frontEnd/SyphaxFrontEnd/src/App.jsx
+
+// role: Main application component that handles the conditional rendering of the SignInForm or DashBoard based on login status.
+
+// Import the global stylesheet for the application
+import './App.css';
+// Import the SignInForm component
+import SignInForm from './Components/SignInForm/SignInForm.jsx';
+// Import the DashBoard component
+import DashBoard from './Components/DashBoard/DashBoard.jsx';
+// Import the login store from MobX
+import { loginStore } from './mobxStores/loginStore.jsx';
+// Import observer from MobX for observing state changes
+import { observer } from 'mobx-react';
+// Import the WebSocket instance
+import socket from './webSockets/websocket.jsx';
+
+/**
+ * App component.
+ * 
+ * This functional component is the main application component.
+ * It observes the loginStore to conditionally render either the SignInForm or the DashBoard based on the login status.
+ * 
+ * @returns {JSX.Element} The rendered application component.
+ */
+const App = observer(() => {
+  // Connect to the WebSocket server
+  socket.connect();
+
+  return (
+    <div>
+      {loginStore.loginSucces ? (
+        // If login is successful, render the DashBoard component
+        <DashBoard />
+      ) : (
+        // If login is not successful, render the SignInForm component
+        <SignInForm />
+      )}
+    </div>
+  );
+});
+
+// Export the App component as the default export
+export default App;
+
+
+frontEnd/SyphaxFrontEnd/src/main.jsx
+
+// role: Entry point for the React application, responsible for rendering the main App component.
+
+/**
+ * Import React library for building user interfaces.
+ * @module React
+ */
+import React from 'react';
+
+/**
+ * Import ReactDOM for rendering React components into the DOM.
+ * @module ReactDOM
+ */
+import ReactDOM from 'react-dom/client';
+
+/**
+ * Import the main App component.
+ * @module App
+ */
+import App from './App.jsx';
+
+/**
+ * Import the global stylesheet for the application.
+ * @module styles
+ */
+import './index.css';
+
+/**
+ * Render the React application into the DOM.
+ * 
+ * This method creates a root DOM node, attaches the React application to it,
+ * and renders the main App component inside a strict mode environment.
+ */
+ReactDOM.createRoot(document.getElementById('root')).render(
+  // React.StrictMode is a wrapper component that helps with identifying potential problems in the application.
+  <React.StrictMode>
+    {/* Render the main App component */}
+    <App />
+  </React.StrictMode>,
+);
+
+
+frontEnd/SyphaxFrontEnd/src/index.css
+frontEnd/SyphaxFrontEnd/src/App.css
+frontEnd/SyphaxFrontEnd/src/assets : Main directory assets (images, video, sounds, stylesheets)
+frontEnd/SyphaxFrontEnd/src/assets/Images : Directory containing image assets for the frontend application.
+frontEnd/SyphaxFrontEnd/src/assets/styleSheets : Contains stylesheets
+frontEnd/SyphaxFrontEnd/src/assets/styleSheets/signInHeader.css
+frontEnd/SyphaxFrontEnd/src/assets/styleSheets/signInForm.css
+frontEnd/SyphaxFrontEnd/src/Components : Contains all the React components used in the Syphax frontend application.
+frontEnd/SyphaxFrontEnd/src/Components/SignInForm : Contains components related to the sign-in form for user authentication.
+frontEnd/SyphaxFrontEnd/src/Components/SignInForm/SignInForm.jsx
+
+// role: Provides the sign-in form component for user authentication.
+
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
+// Import StyledEngineProvider from MUI for styling
+import { StyledEngineProvider } from '@mui/material/styles';
+// Import the stylesheet for the SignInForm component
+import '../../assets/styleSheets/signInForm.css';
+// Import the SignInHeader component
+import SignInHeader from './SignInHeader.jsx';
+// Import observer from mobx-react to observe changes in MobX store
+import { observer } from 'mobx-react';
+// Import the loginStore from MobX to manage the login state
+import { loginStore } from '../../mobxStores/loginStore.jsx';
+// Import MUI components for the form
+import {
+  Checkbox,
+  TextField,
+  FormControlLabel,
+  Paper,
+  Button,
+  Box
+} from '@mui/material';
+
+/**
+ * SignInForm component.
+ * 
+ * This functional component renders a sign-in form for user authentication.
+ * It uses MobX to manage the state and MUI for styling and form elements.
+ * 
+ * @returns {JSX.Element} The rendered sign-in form component.
+ */
+const SignInForm = observer(function SignInForm() {
+  return (
+    <div>
+      {/* Display error message if there is any */}
+      <Box
+        id="loginErrorTextField"
+        sx={{
+          color: 'red',
+          border: loginStore.errorBorder,
+          textAlign: 'center',
+          padding: '8px',
+          marginBottom: '16px',
+        }}
+      >
+        {loginStore.errorText}
+      </Box>
+      
+      {/* Paper component to contain the form elements */}
+      <Paper className="GridContainer">
+        
+        {/* Render the SignInHeader component */}
+        <SignInHeader/>
+
+        {/* TextField for user email input */}
+        <TextField 
+          className="UserField"
+          label="User e-mail"
+          onChange={loginStore.onUserEmailChanged}
+        />
+        
+        {/* TextField for password input */}
+        <TextField 
+          className="passwordField" 
+          label="Password" 
+          type="password"
+          onChange={loginStore.onPasswordChanged}
+        />
+        
+        {/* FormControlLabel for the 'Keep me logged in' checkbox */}
+        <FormControlLabel 
+          className="rememberMeField"
+          control={
+            <Checkbox
+              onChange={loginStore.onHandleStayLogged}
+              inputProps={{ 'aria-label': 'primary checkbox' }}
+            />
+          }
+          label="Keep me logged in"
+        />
+        
+        {/* Button to submit the login form */}
+        <StyledEngineProvider>
+          <Button 
+            className="LoginButton" 
+            variant="contained" 
+            onClick={loginStore.onSubmitLogin}
+          > 
+            Login 
+          </Button>
+        </StyledEngineProvider> 
+      </Paper>
+    </div>
+  );
+});
+
+// Export the SignInForm component as the default export
+export default SignInForm;
+
+
+frontEnd/SyphaxFrontEnd/src/Components/SignInForm/SignInHeader.jsx
+
+// role: Provides a basic header for a login box.
+
+// Import React to create the component
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
+// Import the stylesheet for the SignInHeader component
+import '../../assets/styleSheets/signInHeader.css';
+
+/**
+ * SignInHeader component.
+ * 
+ * This functional component renders a header for the login box,
+ * including a logo and a title.
+ * 
+ * @returns {JSX.Element} The rendered header component.
+ */
+const SignInHeader = () => {
+    return (
+        <div className="SignInHeaderContainer">
+            {/* Logo image for the header */}
+            <img className="Logo" src="src/assets/Images/logoElyteq.png" alt="Elyteq Logo" />
+            
+            {/* Title for the header */}
+            <div className="Title">Elyeq Syphax Gateway</div>
+        </div>
+    );
+};
+
+// Export the SignInHeader component as the default export
+export default SignInHeader;
+
+
+frontEnd/SyphaxFrontEnd/src/Components/DashBoard : Contains components related to the dashboard for displaying drilling parameters and gas analysis.
+frontEnd/SyphaxFrontEnd/src/Components/DashBoard/DashBoard.jsx
+
+// role: Component for displaying the dashboard with tabs for different drilling parameters and gas analysis.
+
+import Tabs from '@mui/material/Tabs'; // Import Tabs component from MUI for tab navigation
+import Tab from '@mui/material/Tab'; // Import Tab component from MUI for individual tabs
+import Box from '@mui/material/Box'; // Import Box component from MUI for layout
+import { observer } from 'mobx-react'; // Import observer from MobX for observing state changes
+import { dashBoardStore } from '../../mobxStores/dashBoardStore'; // Import the dashboard store from MobX
+import CustomTabPanel from './CustomTabPanel.jsx'; // Import CustomTabPanel component for displaying tab content
+
+/**
+ * Accessibility props function.
+ * 
+ * Generates accessibility properties for each tab to enhance usability.
+ * 
+ * @param {number} index - The index of the tab.
+ * @returns {object} Accessibility properties for the tab.
+ */
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`, // Unique ID for the tab
+    'aria-controls': `simple-tabpanel-${index}`, // ARIA controls for the associated tab panel
+  };
+}
+
+/**
+ * DashBoard component.
+ * 
+ * This functional component renders the dashboard with tabs for different drilling parameters and gas analysis.
+ * It observes the state from the dashBoardStore to manage tab changes and display the appropriate content.
+ * 
+ * @returns {JSX.Element} The rendered dashboard component.
+ */
+const DashBoard = observer(function DashBoard() {
+  return (
+    <Box sx={{ width: '100%' }}> {/* Container for the dashboard */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}> {/* Container for the tabs */}
+        <Tabs 
+          value={dashBoardStore.tabSheetIndex} // Bind the selected tab index to the store
+          onChange={dashBoardStore.onHandleDashBoardTabsheetChanged} // Handle tab changes using the store's method
+          aria-label="elyteq Syphax" // ARIA label for accessibility
+        >
+          <Tab label="Drilling parameters (time)" {...a11yProps(0)} /> {/* Tab for drilling parameters (time) */}
+          <Tab label="Drilling parameters (depth)" {...a11yProps(1)} /> {/* Tab for drilling parameters (depth) */}
+          <Tab label="Gaz analysis" {...a11yProps(2)} /> {/* Tab for gas analysis */}
+        </Tabs>
+      </Box>
+      <CustomTabPanel value={dashBoardStore.tabSheetIndex} index={0}> {/* Panel for the first tab */}
+        Item One
+      </CustomTabPanel>
+      <CustomTabPanel value={dashBoardStore.tabSheetIndex} index={1}> {/* Panel for the second tab */}
+        Item Two
+      </CustomTabPanel>
+      <CustomTabPanel value={dashBoardStore.tabSheetIndex} index={2}> {/* Panel for the third tab */}
+        Item Three
+      </CustomTabPanel>
+    </Box>
+  );
+})
+
+// Export the DashBoard component as the default export
+export default DashBoard;
+
+
+frontEnd/SyphaxFrontEnd/src/Components/DashBoard/CustomTabPanel.jsx
+
+// role: Provides a custom tab panel component for displaying content in different tabs.
+
+// Import observer from MobX to create an observer component that reacts to state changes in MobX stores.
+import { observer } from 'mobx-react';
+// Import the custom tab store from MobX which contains the state for the tab panels.
+import tabStore from '../../mobxStores/customTabStore';
+// Import the Box component from Material-UI (MUI) for layout and styling.
+import Box from '@mui/material/Box';
+
+/**
+ * CustomTabPanel component.
+ * 
+ * This functional component renders the content of a tab panel.
+ * It is an observer component that reacts to changes in the tab store's state.
+ * 
+ * @param {object} props - The properties passed to the component.
+ * @param {ReactNode} props.children - The content to display within the tab panel.
+ * @param {number} props.index - The index of the tab panel.
+ * @param {object} [props.other] - Any other properties passed to the component.
+ * @returns {JSX.Element} The rendered tab panel component.
+ */
+const CustomTabPanel = observer(({ children, index, ...other }) => {
+  // Destructure the children, index, and any other props passed to the component.
+
+  // Get the current value of the selected tab from the tab store.
+  const value = tabStore.value;
+
+  return (
+    // Return a div element that serves as the container for the tab panel.
+    <div
+      role="tabpanel" // ARIA role for accessibility, indicating this div is a tab panel.
+      hidden={value !== index} // Hide the panel if it is not the selected tab.
+      id={`simple-tabpanel-${index}`} // Unique ID for the tab panel, using the index.
+      aria-labelledby={`simple-tab-${index}`} // ARIA attribute to link the tab panel with the corresponding tab.
+      {...other} // Spread any other props passed to the component onto this div.
+    >
+      {/* If this tab panel is the selected one, render its children inside a Box component for padding and styling. */}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+});
+
+// Export the CustomTabPanel component as the default export.
+export default CustomTabPanel;
+
+
+frontEnd/SyphaxFrontEnd/src/mobxStores : Contains MobX stores for managing application state.
+frontEnd/SyphaxFrontEnd/src/mobxStores/playGroundStore.jsx
+frontEnd/SyphaxFrontEnd/src/mobxStores/authStore.jsx
+
+// role: MobX store for managing authentication state, including user information and token management.
+
+import { makeObservable, observable, action } from 'mobx'; // Import MobX functions for creating observable state and actions
+
+/**
+ * AuthStore class.
+ * 
+ * This class manages the authentication state, including the user token and user information.
+ * It provides actions to set the token, set the user, and log out the user.
+ */
+class AuthStore {
+  // Observable property to store the authentication token
+  token = localStorage.getItem('SyphaxToken') || null;
+  // Observable property to store the user information
+  user = null;
+
+  /**
+   * Constructor for AuthStore.
+   * 
+   * Makes the properties and methods observable and actionable using MobX.
+   */
+  constructor() {
+    makeObservable(this, {
+      token: observable, // Make the token property observable
+      user: observable, // Make the user property observable
+      setToken: action, // Make the setToken method an action
+      setUser: action, // Make the setUser method an action
+      logout: action, // Make the logout method an action
+    });
+  }
+
+  /**
+   * Sets the authentication token.
+   * 
+   * If a token is provided, it is stored in both the state and localStorage.
+   * If no token is provided, the token is removed from both the state and localStorage.
+   * 
+   * @param {string|null} token - The authentication token.
+   */
+  setToken(token) {
+    this.token = token; // Update the token state
+    if (token) {
+      localStorage.setItem('SyphaxToken', token); // Store the token in localStorage if provided
+    } else {
+      localStorage.removeItem('SyphaxToken'); // Remove the token from localStorage if null
+    }
+  }
+
+  /**
+   * Sets the user information.
+   * 
+   * Updates the user state with the provided user information.
+   * 
+   * @param {object|null} user - The user information.
+   */
+  setUser(user) {
+    this.user = user; // Update the user state
+  }
+
+  /**
+   * Logs out the user.
+   * 
+   * Clears the authentication token and user information from the state and localStorage.
+   */
+  logout() {
+    this.setToken(null); // Clear the token
+    this.setUser(null); // Clear the user information
+  }
+}
+
+// Create an instance of AuthStore
+const authStore = new AuthStore();
+export default authStore; // Export the instance for use in other parts of the application
+
+
+frontEnd/SyphaxFrontEnd/src/mobxStores/loginStore.jsx
+
+// role: MobX store for managing the login state, including user email, password, and login status.
+
+import { makeObservable, observable, action, runInAction } from 'mobx'; // Import MobX functions for creating observable state and actions
+import { login } from '../apis/authApi'; // Import the login function from the API
+import authStore from './authStore'; // Import the authentication store
+
+/**
+ * LoginStore class.
+ * 
+ * This class manages the login state, including the user's email, password, and login status.
+ * It provides actions to handle changes in email and password, submit the login form, and manage the "stay logged in" option.
+ */
+export class LoginStore {
+  stayLogged = false; // Observable property to store the "stay logged in" status
+  loginSucces = false; // Observable property to store the login success status
+  stayLoggedAsText = 'No'; // Observable property to store the "stay logged in" status as text
+  userEmail = ''; // Observable property to store the user's email
+  userPasssword = ''; // Observable property to store the user's password
+  errorText = ''; // Observable property to store the error message
+  errorBorder = '0px'; // Observable property to store the error border style
+
+  /**
+   * Constructor for LoginStore.
+   * 
+   * Makes the properties and methods observable and actionable using MobX.
+   */
+  constructor() {
+    makeObservable(this, {
+      stayLogged: observable, // Make the stayLogged property observable
+      stayLoggedAsText: observable, // Make the stayLoggedAsText property observable
+      userEmail: observable, // Make the userEmail property observable
+      userPasssword: observable, // Make the userPasssword property observable
+      errorText: observable, // Make the errorText property observable
+      errorBorder: observable, // Make the errorBorder property observable
+      loginSucces: observable, // Make the loginSucces property observable
+      onUserEmailChanged: action, // Make the onUserEmailChanged method an action
+      onPasswordChanged: action, // Make the onPasswordChanged method an action
+      onHandleStayLogged: action, // Make the onHandleStayLogged method an action
+      onSubmitLogin: action, // Make the onSubmitLogin method an action
+    });
+  }
+
+  /**
+   * Handles changes to the user email input field.
+   * 
+   * Updates the userEmail property with the new value from the input field.
+   * 
+   * @param {object} event - The event object from the input field.
+   */
+  onUserEmailChanged = (event) => {
+    this.userEmail = event.target.value; // Update the userEmail state with the input value
+  };
+
+  /**
+   * Handles changes to the user password input field.
+   * 
+   * Updates the userPasssword property with the new value from the input field.
+   * 
+   * @param {object} event - The event object from the input field.
+   */
+  onPasswordChanged = (event) => {
+    this.userPasssword = event.target.value; // Update the userPasssword state with the input value
+  };
+
+  /**
+   * Handles the submission of the login form.
+   * 
+   * Sends the login request to the server and updates the authentication state upon success.
+   * Updates the error state if the login request fails.
+   */
+  onSubmitLogin = async () => {
+    try {
+      const response = await login(this.userEmail, this.userPasssword, this.stayLogged); // Send login request
+      const data = response.auth; // Correctly access the auth object
+      runInAction(() => {
+        authStore.setToken(data.accessToken); // Set the authentication token in the authStore
+        authStore.setUser(data.user); // Set the user information in the authStore
+        if (this.stayLogged) {
+          localStorage.setItem('SyphaxToken', data.accessToken); // Store the token in localStorage if "stay logged in" is checked
+        }
+        this.errorText = ''; // Clear the error text
+        this.errorBorder = '0px'; // Reset the error border style
+        this.loginSucces = true; // Set the login success status to true
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.errorText = 'Login Failed !'; // Set the error text to "Login Failed !"
+        this.errorBorder = '1px solid red'; // Set the error border style
+        this.loginSucces = false; // Set the login success status to false
+      });
+      console.error('Login failed', error); // Log the error to the console
+    }
+  };
+
+  /**
+   * Handles changes to the "stay logged in" checkbox.
+   * 
+   * Updates the stayLogged and stayLoggedAsText properties based on the checkbox status.
+   * 
+   * @param {object} event - The event object from the checkbox.
+   */
+  onHandleStayLogged = (event) => {
+    this.stayLogged = event.target.checked; // Update the stayLogged state with the checkbox status
+    this.stayLogged ? (this.stayLoggedAsText = 'Yes') : (this.stayLoggedAsText = 'No'); // Update the stayLoggedAsText state based on the checkbox status
+    console.log('enter on handleStayLogged:' + this.stayLogged); // Log the stayLogged status to the console
+  };
+}
+
+// Create an instance of LoginStore
+export const loginStore = new LoginStore();
+
+
+frontEnd/SyphaxFrontEnd/src/mobxStores/dashBoardStore.jsx
+
+// role: MobX store for managing the state of the dashboard, including the index of the currently selected tab.
+
+import { makeObservable, observable, action } from 'mobx'; // Import MobX functions for creating observable state and actions
+
+/**
+ * DashBoardStore class.
+ * 
+ * This class manages the state of the dashboard, specifically the index of the currently selected tab.
+ * It provides an action to handle changes to the selected tab.
+ */
+export class DashBoardStore {
+  // Observable property to store the index of the currently selected tab
+  tabSheetIndex = 0;
+
+  /**
+   * Constructor for DashBoardStore.
+   * 
+   * Makes the properties and methods observable and actionable using MobX.
+   */
+  constructor() {
+    makeObservable(this, {
+      tabSheetIndex: observable, // Make the tabSheetIndex property observable
+      onHandleDashBoardTabsheetChanged: action // Make the onHandleDashBoardTabsheetChanged method an action
+    });
+  }
+
+  /**
+   * Handles changes to the selected tab.
+   * 
+   * Updates the tabSheetIndex property with the new value from the tab change event.
+   * 
+   * @param {object} event - The event object from the tab change.
+   * @param {number} newValue - The index of the newly selected tab.
+   */
+  onHandleDashBoardTabsheetChanged = (event, newValue) => {
+    this.tabSheetIndex = newValue; // Update the tabSheetIndex state with the new tab index
+  };
+}
+
+// Create an instance of DashBoardStore and export it for use in other parts of the application
+export const dashBoardStore = new DashBoardStore();
+
+
+frontEnd/SyphaxFrontEnd/src/mobxStores/customTabStore.jsx
+
+// role: MobX store for managing the state of a custom tab component, including the index of the currently selected tab.
+
+import { makeObservable, observable, action } from 'mobx'; // Import MobX functions for creating observable state and actions
+
+/**
+ * CustomTabStore class.
+ * 
+ * This class manages the state of a custom tab component, specifically the index of the currently selected tab.
+ * It provides an action to update the selected tab index.
+ */
+class CustomTabStore {
+  // Observable property to store the index of the currently selected tab
+  value = 0;
+
+  /**
+   * Constructor for CustomTabStore.
+   * 
+   * Makes the properties and methods observable and actionable using MobX.
+   */
+  constructor() {
+    makeObservable(this, {
+      value: observable, // Make the value property observable
+      setValue: action, // Make the setValue method an action
+    });
+  }
+
+  /**
+   * Sets the index of the selected tab.
+   * 
+   * Updates the value property with the new tab index.
+   * 
+   * @param {number} newValue - The index of the newly selected tab.
+   */
+  setValue(newValue) {
+    this.value = newValue; // Update the value state with the new tab index
+  }
+}
+
+// Create an instance of CustomTabStore and export it for use in other parts of the application
+const tabStore = new CustomTabStore();
+export default tabStore;
+
+
+frontEnd/SyphaxFrontEnd/src/apis : Contains API functions for interacting with backend services.
+frontEnd/SyphaxFrontEnd/src/apis/authApi.jsx
+frontEnd/SyphaxFrontEnd/src/apis/refreshToken.jsx
+
+// role: Contains the function to refresh the access token using the refresh token.
+
+import { LOGIN_API_URL } from '../globals/globals'; // Import the login API URL from the global constants
+
+/**
+ * Refreshes the access token using the refresh token.
+ *
+ * @returns {Promise<Object>} The response data containing the new access token and user data.
+ */
+export const refreshAccessToken = async () => {
+  try {
+    // Send a POST request to the refresh token endpoint to obtain a new access token
+    const response = await fetch(`${LOGIN_API_URL}/refreshToken`, {
+      method: 'POST', // Use the POST method for the request
+      credentials: 'include', // Include credentials (cookies) in the request
+      headers: {
+        'Content-Type': 'application/json' // Set the content type to JSON
+      }
+    });
+
+    // Check if the response status is not OK (status code is not in the range 200-299)
+    if (!response.ok) {
+      throw new Error('Failed to refresh access token'); // Throw an error if the request failed
+    }
+
+    // Parse the response data as JSON
+    const data = await response.json();
+    return data; // Return the parsed data containing the new access token and user data
+  } catch (error) {
+    console.error('Error refreshing access token:', error); // Log any errors that occur during the request
+    throw error; // Rethrow the error to be handled by the caller
+  }
+};
+
+
+frontEnd/SyphaxFrontEnd/src/webSockets : Contains WebSocket client setup for real-time communication with the backend server.
+frontEnd/SyphaxFrontEnd/src/webSockets/websocket.jsx
+
+// role: WebSocket client setup for real-time communication with the backend server.
+
+// Import the WebSocket client from the 'socket.io-client' library
+import { io } from "socket.io-client";
+// Import the authentication store from MobX to manage authentication state
+import authStore from '../mobxStores/authStore';
+// Import the WebSocket URL from the global configuration
+import { WEB_SOCKET_URL } from "../globals/globals";
+import { refreshAccessToken } from "../apis/refreshToken";
+
+// Initialize the WebSocket connection using the provided URL
+const socket = io(WEB_SOCKET_URL);
+
+/**
+ * Event listener for WebSocket connection.
+ * Logs the connection status and socket ID to the console.
+ */
+socket.on('connect', () => {
+  console.log('Connected to WebSocket server');
+  // Optionally, we could send the socket ID to the backend for association with user sessions
+  console.log('Socket ID:', socket.id);
+});
+
+/**
+ * Handles token invalidation and expiration.
+ * Logs the user out and clears the local storage.
+ *
+ * @param {string} message - The message received from the server indicating an invalid or expired token.
+ */
+const handleInvalidToken = async (message) => {
+  console.log('Received token invalid/expired message:', message);
+  
+  try {
+    // Attempt to refresh the access token using the refresh token
+    const data = await refreshAccessToken();
+    authStore.setToken(data.accessToken);
+    authStore.setUser(data.userData);
+    console.log('Access token refreshed successfully');
+  } catch (error) {
+    // If refresh fails, logout the user
+    console.log('Failed to refresh access token, logging out user');
+    authStore.logout();
+    // Clear any token in local storage
+    localStorage.removeItem('SyphaxToken');
+    // Display an alert to the user with the received message
+    alert(message);
+  }
+};
+
+// Event listener for 'invalidToken' messages
+socket.on('invalidToken', handleInvalidToken);
+
+// Event listener for 'tokenExpired' messages
+socket.on('tokenExpired', handleInvalidToken);
+
+/**
+ * Event listener for WebSocket disconnection.
+ * Logs the disconnection status to the console.
+ */
+socket.on('disconnect', () => {
+  console.log('Disconnected from WebSocket server');
+});
+
+// Export the initialized WebSocket connection for use in other modules
+export default socket;
+
+
+frontEnd/SyphaxFrontEnd/src/globals : Contains global constants and some configuration for the frontend application.
+frontEnd/SyphaxFrontEnd/src/globals/globals.jsx
+
+// role: Contains global constants for API and WebSocket URLs used in the application.
+
+/**
+ * The URL for the login API endpoint.
+ * 
+ * This URL is used to send login requests to the backend server.
+ * @constant {string}
+ */
+export const LOGIN_API_URL = 'http://localhost:5010/api/auth';
+
+/**
+ * The URL for the WebSocket connection.
+ * 
+ * This URL is used to establish a WebSocket connection with the backend server.
+ * @constant {string}
+ */
+export const WEB_SOCKET_URL = 'http://localhost:5010';
+
+
+backEnd : Root directory of the backEnd
+backEnd/authentificationServices : Contains services for handling user authentication, including JWT token management and encryption.
+backEnd/authentificationServices/jwtService.mjs
+
+// role: This file handles JWT token generation, verification, and refresh token logic for user authentication.
+
+import jwt from "jsonwebtoken"; // Importing the jsonwebtoken library for JWT operations
+import fs from "fs/promises"; // Importing the file system promises API for reading files asynchronously
+import path from "path"; // Importing the path module to handle file paths
+import {
+  cryptoAESDecryption, // Importing the AES decryption function from the crypto service module
+  cryptoAESEncryption, // Importing the AES encryption function from the crypto service module
+} from "./cryptoService.mjs"; // Specifying the relative path to the crypto service module
+
+import { getUserByUserId } from "../db/authModel.mjs"; // Importing the function to get user data by user ID from the auth model
+import { sendMessageToClient } from "../mainServer/websocketUtils.mjs"; // Importing the function to send messages to client via websocket
+import { MESSAGE_EVENTS, MESSAGE_STRINGS } from "../globals/globalWebSocket.mjs"; // Import WebSocket constants
+
+
+const rootDir = process.cwd(); // Getting the current working directory
+const privateKeyPath = path.join(rootDir, "./certs/jwtRS256.key"); // Constructing the path to the private key file
+const publicKeyPath = path.join(rootDir, "./certs/jwtRS256.key.pub"); // Constructing the path to the public key file
+const privateKey = await fs.readFile(privateKeyPath); // Reading the private key from the file system asynchronously
+const publicKey = await fs.readFile(publicKeyPath); // Reading the public key from the file system asynchronously
+
+/**
+ * Signs the provided data into a JWT token.
+ *
+ * @param {Object} data - The data to be included in the JWT token payload.
+ * @param {number} [seconds=2592000] - The token expiration time in seconds (default is 30 days).
+ * @returns {string|null} - The generated JWT token or null if an error occurs.
+ */
+export const sign = async (data, seconds = 30 * 60 * 60 * 24) => {
+  if (!data) { // Checking if the data is provided
+    return null; // Returning null if data is not provided
+  }
+
+  try {
+    const options = { algorithm: "RS256", expiresIn: seconds }; // Setting the JWT options including algorithm and expiration time
+    const token = jwt.sign({ payload: data }, privateKey, options); // Signing the JWT token with the private key and options
+    return token; // Returning the generated token
+  } catch (error) {
+    console.error(error); // Logging any error that occurs during the token generation
+    return null; // Returning null if an error occurs
+  }
+};
+
+/**
+ * Verifies the provided JWT token.
+ *
+ * @param {string} token - The JWT token to verify.
+ * @param {string} socketId - The socket ID of the client for WebSocket communication.
+ * @returns {Object|null} - The decoded token payload or null if verification fails.
+ */
+export const verifyToken = (token, socketId) => {
+  if (!token) { // Checking if the token is provided
+    return null; // Returning null if token is not provided
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, publicKey, { algorithm: "RS256" }); // Verifying the token with the public key and algorithm
+
+    // If token is expired, send a WebSocket message
+    if (Date.now() >= decodedToken.exp * 1000) {
+      if (socketId) {
+        sendMessageToClient(socketId, MESSAGE_EVENTS.TOKEN_EXPIRED, MESSAGE_STRINGS.TOKEN_EXPIRED);
+      }
+      return null;
+    }
+
+    return decodedToken;
+  } catch (error) {
+    console.error(error); // Logging any error that occurs during token verification
+    return null; // Returning null if verification fails
+  }
+};
+
+/**
+ * Verifies the refresh token and generates a new access token if valid.
+ *
+ * @param {Object} req - The HTTP request object containing headers and cookies.
+ * @param {string} socketId - The socket ID of the client for WebSocket communication.
+ * @returns {Object} - The response data containing authentication status, updated token, and user data.
+ */
+export const verifyRefreshToken = async (req, socketId) => {
+  let userData = null; // Initializing userData as null
+
+  const responseData = { // Initializing the response data object
+    authStatus: 0, // Default authentication status (0: not authenticated)
+    updatedToken: false, // Default updated token status (false: token not updated)
+    data: {
+      accessToken: null, // Placeholder for the access token
+      userData: null, // Placeholder for the user data
+    },
+  };
+
+  let accessTok =
+    req.headers?.authorization && req.headers?.authorization.split(" ")[1] // Checking if the authorization header is present
+      ? req.headers?.authorization.split(" ")[1] // Extracting the token from the authorization header
+      : ""; // Defaulting to an empty string if no token is found
+
+  const refreshTok = req.cookies?.yttmrtck; // Extracting the refresh token from the cookies
+
+  if (!accessTok && !refreshTok) { // Checking if both access token and refresh token are absent
+    return responseData; // Returning the default response data
+  }
+
+  const accessTokenValid = verifyToken(accessTok, socketId); // Verifying the access token
+
+  if (!accessTokenValid || !accessTokenValid.payload) { // Checking if the access token is invalid or has no payload
+    const refreshTokenValid = verifyToken(refreshTok, socketId); // Verifying the refresh token
+    if (refreshTokenValid && refreshTokenValid.payload) { // Checking if the refresh token is valid and has a payload
+      const userDec = await cryptoAESDecryption(
+        refreshTokenValid.payload
+      ).catch(() => null); // Decrypting the user data from the refresh token payload
+
+      if (userDec) { // Checking if the user data decryption was successful
+        const user = await getUserByUserId(userDec); // Fetching the user data by user ID
+        if (user) { // Checking if the user data was retrieved successfully
+          const userData = { // Constructing the user data object
+            id: user.u_user_id, // User ID
+            name: user.u_name, // User name
+            email: user.u_email, // User email
+            mobile: user.u_mobile, // User mobile
+            image: user.u_image, // User image
+          };
+
+          const encUser = await cryptoAESEncryption(
+            JSON.stringify(userData)
+          ).catch(() => null); // Encrypting the user data
+
+          const accessToken = await sign(encUser, 2 * 60).catch(() => null); // Generating a new access token with a short expiry
+
+          responseData.updatedToken = true; // Updating the token status in the response data
+          responseData.authStatus = 1; // Updating the authentication status in the response data
+          responseData.data.accessToken = accessToken; // Setting the new access token in the response data
+          responseData.data.userData = userData; // Setting the user data in the response data
+          return responseData; // Returning the updated response data
+        }
+      }
+    }
+  } else {
+    userData = await cryptoAESDecryption(accessTokenValid.payload).catch(
+      () => null
+    ); // Decrypting the user data from the access token payload
+  }
+
+  if (accessTokenValid && userData) { // Checking if the access token is valid and user data is available
+    responseData.authStatus = 1; // Updating the authentication status in the response data
+    responseData.data.accessToken = accessTok; // Setting the current access token in the response data
+    responseData.data.userData = userData; // Setting the user data in the response data
+  }
+
+  return responseData; // Returning the final response data
+};
+
+
+backEnd/authentificationServices/authSrv.mjs
+
+// role: This file handles user authentication, verifying credentials and generating tokens.
+
+// Importing bcrypt library for password hashing and comparison
+import bcrypt from "bcrypt";
+// Importing sign function from jwtService to generate JWT tokens
+import { sign } from "./jwtService.mjs";
+// Importing AES encryption function from cryptoService
+import { cryptoAESEncryption } from "./cryptoService.mjs";
+// Importing function to get user by email from the database model
+import { getUserByEmail } from "../db/authModel.mjs";
+// Importing UI functions to display messages in the terminal
+import { displayError, displayMenu, displaySucces } from "../terminalUi/terminalUi.mjs";
+// Importing function to send messages to client via websocket
+import { sendMessageToClient } from "../mainServer/websocketUtils.mjs";
+import { MESSAGE_EVENTS, MESSAGE_STRINGS } from "../globals/globalWebSocket.mjs"; // Import WebSocket constants
+
+
+/**
+ * Authenticates a user by verifying email and password, and generates tokens.
+ * 
+ * @param {string} email - The email of the user to authenticate.
+ * @param {string} password - The password of the user to authenticate.
+ * @param {number} expiryTime - The expiration time for the refresh token.
+ * @param {string} socketId - The socket ID of the client for WebSocket communication.
+ * @returns {Object|null} - Returns an object with tokens and user data if authentication is successful, otherwise null.
+ */
+export async function authenticateUser(email, password, expiryTime, socketId) {
+  // Check if email, password, or expiryTime is missing
+  if (!email || !password || !expiryTime) {
+    displayError(true, 'User cannot be identified'); // Display error message
+    if (socketId) {
+      sendMessageToClient(socketId, MESSAGE_EVENTS.LOGIN_FAILED, MESSAGE_STRINGS.LOGIN_FAILED);
+    }
+    return null; // Return null indicating failure
+  }
+
+  try {
+    // Fetch user details by email
+    const user = await getUserByEmail(email);
+    const dbHash = user.u_password; // Get password hash from user data
+    displaySucces(true, 'Password hash:\n'); // Display success message
+    displaySucces(false, dbHash); // Display the password hash
+    if (user.u_email !== email || !dbHash) {
+      displayError(false, '\nWrong email or password is null\n'); // Display error for wrong email or missing password
+      if (socketId) {
+        sendMessageToClient(socketId, MESSAGE_EVENTS.LOGIN_FAILED, MESSAGE_STRINGS.LOGIN_FAILED);
+      }
+      return null; // Return null indicating failure
+    }
+
+    // Replace PHP hash prefix to be compatible with bcrypt
+    const hash = dbHash.replace(/^\$2y(.+)$/i, "$2b$1");
+    // Compare provided password with stored hash
+    const verified = await bcrypt.compare(password, hash).catch(() => false);
+
+    if (!verified) {
+      displayError('\nPassword not verified\n'); // Display error if password verification fails
+      if (socketId) {
+        sendMessageToClient(socketId, MESSAGE_EVENTS.LOGIN_FAILED, MESSAGE_STRINGS.LOGIN_FAILED);
+      }
+      return null; // Return null indicating failure
+    }
+
+    // Prepare user data for token generation
+    const userData = {
+      id: user.u_user_id,
+      name: user.u_name,
+      email: user.u_email,
+      mobile: user.u_mobile,
+      image: user.u_image,
+    };
+    displaySucces(false, '\nUser data:\n'); // Display user data success message
+    displaySucces(false, JSON.stringify(userData)); // Display user data
+    displaySucces(false, '\n\nUser ID:\n'); // Display user ID success message
+    displaySucces(false, JSON.stringify(user.u_user_id)); // Display user ID
+
+    // Encrypt user data and user ID
+    const encUser = await cryptoAESEncryption(JSON.stringify(userData)).catch(
+      () => null
+    );
+    const encUserId = await cryptoAESEncryption(user.u_user_id).catch(
+      () => null
+    );
+
+    displaySucces(false, '\n\nEncrypted data:\n'); // Display encrypted data success message
+    displaySucces(false, encUser); // Display encrypted user data
+    displaySucces(false, '\nEncrypted ID:\n'); // Display encrypted ID success message
+    displaySucces(false, encUserId); // Display encrypted user ID
+
+    // Generate refresh and access tokens
+    // 1 day expiration for refresh token
+    const refreshToken = await sign(encUserId, expiryTime).catch(() => null);
+    // 2 minutes expiration for access token
+    const accessToken = await sign(encUser, 2 * 60).catch(() => null);
+    await displayMenu(true); // Display menu
+
+    // Send success message to the client
+    if (socketId) {
+      sendMessageToClient(socketId, MESSAGE_EVENTS.LOGIN_SUCCESS, MESSAGE_STRINGS.LOGIN_SUCCESS);
+    }
+
+    // Return tokens and user data indicating successful authentication
+    return {
+      refreshToken: refreshToken,
+      accessToken: accessToken,
+      user: userData,
+      authenticated: true,
+    };
+  } catch (error) {
+    displayError(error); // Display error if exception occurs
+    if (socketId) {
+      sendMessageToClient(socketId, MESSAGE_EVENTS.LOGIN_FAILED, MESSAGE_STRINGS.LOGIN_FAILED);
+    }
+    return null; // Return null indicating failure
+  }
+}
+
+/**
+ * Verifies the provided JWT token and sends a message if it is expired.
+ *
+ * @param {string} token - The JWT token to verify.
+ * @param {string} socketId - The socket ID of the client for WebSocket communication.
+ * @returns {Object|null} - The decoded token payload or null if verification fails.
+ */
+export const verifyTokenAndNotify = (token, socketId) => {
+  if (!token) { // Checking if the token is provided
+    return null; // Returning null if token is not provided
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, publicKey, { algorithm: "RS256" }); // Verifying the token with the public key and algorithm
+
+    // If token is expired, send a WebSocket message
+    if (Date.now() >= decodedToken.exp * 1000) {
+      if (socketId) {
+        sendMessageToClient(socketId, MESSAGE_EVENTS.TOKEN_EXPIRED, MESSAGE_STRINGS.TOKEN_EXPIRED);
+      }
+      return null;
+    }
+
+    return decodedToken;
+  } catch (error) {
+    console.error(error); // Logging any error that occurs during token verification
+    return null; // Returning null if verification fails
+  }
+};
+
+
+backEnd/authentificationServices/cryptoService.mjs
+
+// role: This file provides functions for AES encryption and decryption using Node.js crypto module.
+
+// Importing the 'crypto' module from Node.js which provides cryptographic functionality.
+import crypto from "crypto";
+
+// Exporting an asynchronous function for AES encryption.
+export async function cryptoAESEncryption(text) {
+  try {
+    // Checks if text input is non-empty.
+    if (text) {
+      const algorithm = "aes-256-cbc";  // Specifies the AES encryption algorithm with a 256-bit key and CBC mode.
+      // Generates a cryptographic key from a predefined environment variable 'AES_ENC_KEY' using scrypt algorithm,
+      // with 'salt' as the salt, and the number of key bytes specified by 'AES_ENC_SALT' environment variable.
+      const key = crypto.scryptSync(
+        process.env.AES_ENC_KEY,
+        "salt",
+        parseInt(process.env.AES_ENC_SALT)
+      );
+      const iv = crypto.randomBytes(16);  // Generates a 16-byte initialization vector (IV) randomly.
+      const cipher = crypto.createCipheriv(algorithm, key, iv);  // Creates a cipher instance using the algorithm, key, and IV.
+      let encrypted = cipher.update(text, "utf8", "hex");  // Encrypts the text and outputs it in hexadecimal format.
+      encrypted += cipher.final("hex");  // Finalizes the encryption and appends the result.
+      return `i$${iv.toString("hex")}$e$${encrypted}`;  // Returns the IV and encrypted data formatted with specific delimiters.
+    }
+  } catch (error) {
+    // Logs any encryption errors to the console.
+    console.error(`Error Enc: ${error.message}`);
+  }
+  return null;  // Returns null if the function fails due to an error or empty input.
+}
+
+// Exporting an asynchronous function for AES decryption.
+export async function cryptoAESDecryption(encrypted) {
+  try {
+    // Checks if encrypted input is non-empty.
+    if (encrypted) {
+      const parts = encrypted.split("$");  // Splits the encrypted string by '$' to extract the IV and encrypted data.
+      // Ensures the format is correct: starts with 'i', the IV, 'e', and the encrypted data.
+      if (parts.length === 4 && parts[0] === "i" && parts[2] === "e") {
+        const iv = Buffer.from(parts[1], "hex");  // Recreates the IV from its hexadecimal string.
+        const encryptedData = parts[3];  // Extracts the encrypted data part.
+        const algorithm = "aes-256-cbc";  // Specifies the AES decryption algorithm as before.
+        // Generates the decryption key as in the encryption function.
+        const key = crypto.scryptSync(
+          process.env.AES_ENC_KEY,
+          "salt",
+          parseInt(process.env.AES_ENC_SALT)
+        );
+        const decipher = crypto.createDecipheriv(algorithm, key, iv);  // Creates a decipher instance using the algorithm, key, and IV.
+        let decrypted = decipher.update(encryptedData, "hex", "utf8");  // Decrypts the data to utf8 format from hex.
+        decrypted += decipher.final("utf8");  // Finalizes the decryption and appends the result.
+        return decrypted;  // Returns the decrypted text.
+      } else {
+        // Throws an error if the format of the encrypted data does not meet expected standards.
+        throw new Error("An error occurred while decrypting the data");
+      }
+    }
+  } catch (error) {
+    // Logs any decryption errors to the console.
+    console.error(`Error Enc: ${error.message}`);
+  }
+  return null;  // Returns null if the function fails due to an error or incorrect formatting.
+}
+
+
+backEnd/authentificationServices/tokenHelper.mjs
+
+// role: Helper functions and middleware for verifying JWT tokens and handling authentication for the Syphax backend server.
+
+// Imports the 'verifyRefreshToken' function from a local jwtService module to handle token verification.
+import { verifyRefreshToken } from "./jwtService.mjs";
+// Imports the 'sendErrorResponse' function from a global utility module to handle error responses uniformly.
+import { sendErrorResponse } from "../globals/globals.mjs";
+// Imports the WebSocket utility to send messages to specific clients.
+import { sendMessageToClient } from '../mainServer/websocketUtils.mjs';
+
+/**
+ * Middleware to verify JWT tokens for routes requiring authentication.
+ * 
+ * This middleware function verifies the JWT token provided in the request.
+ * If the token is valid and authentication succeeds, the request proceeds to the next middleware or route handler.
+ * If the token is invalid, it sends an appropriate error response and optionally sends a WebSocket message to the client.
+ * 
+ * @param {Object} req - Express request object containing headers and cookies.
+ * @param {Object} res - Express response object used to send responses back to the client.
+ * @param {Function} next - Function to pass control to the next middleware or route handler.
+ * @returns {Promise<void>}
+ */
+export const verifyTokenMiddleware = async (req, res, next) => {
+  // Calls 'verifyRefreshToken' with the current request to check token validity and get new tokens if necessary.
+  const isVerified = await verifyRefreshToken(req);
+  // Checks if the token verification was successful and all necessary data is present.
+  if (
+    isVerified &&
+    isVerified.authStatus === 1 &&
+    isVerified.data.accessToken &&
+    isVerified.data.userData
+  ) {
+    // If a new access token was issued during the refresh process, update the request object with the new token and user data.
+    if (isVerified.updatedToken) {
+      req.accessToken = isVerified.data.accessToken;
+      req.userData = isVerified.data.userData;
+    }
+    next(); // Proceeds to the next middleware or route handler since authentication was successful.
+  } else {
+    // If verification fails, send a WebSocket message to the client if socket-id is provided.
+    const socketId = req.headers['socket-id']; // Assuming socket ID is passed in headers
+    if (socketId) {
+      sendMessageToClient(socketId, 'invalidToken', 'Your token is invalid or expired.');
+    }
+    return sendErrorResponse(req, res, 401, "Verification failed!");
+  }
+};
+
+/**
+ * Function to verify JWT tokens for static routes.
+ * 
+ * This function verifies the JWT token provided in the request without passing through the middleware chain.
+ * It is typically used for static routes that require user verification.
+ * 
+ * @param {Object} req - Express request object containing headers and cookies.
+ * @returns {Promise<boolean|null>} Returns true if verification is successful, null otherwise.
+ */
+export const verifyTokenForStatic = async (req) => {
+  // Similar to the middleware, it calls 'verifyRefreshToken' to check the validity of the user's tokens.
+  const isVerified = await verifyRefreshToken(req);
+  // Verifies the token just like the middleware and checks all required fields are present and correct.
+  if (
+    isVerified &&
+    isVerified.authStatus === 1 &&
+    isVerified.data.accessToken &&
+    isVerified.data.userData
+  ) {
+    // Updates the request object with new token and user data if a new token was issued.
+    if (isVerified.updatedToken) {
+      req.accessToken = isVerified.data.accessToken;
+      req.userData = isVerified.data.userData;
+    }
+    return true; // Returns true indicating that the token verification was successful.
+  } else {
+    // Returns null if the verification process fails, indicating no valid token or user data was available.
+    return null;
+  }
+};
+
+
+backEnd/terminalUi : Contains terminal UI components for managing the backend server, including user administration.For security reason, there will be no administartion access from the front end
+backEnd/terminalUi/terminalUi.mjs
+
+// role: initialize the terminal ui stuff and furnish the main menu for the administrator
+import path from 'path';
+import { fileURLToPath } from 'url';
+import pkg from 'terminal-kit';
+import { checkDb } from '../db/userDbManager.mjs';
+import { showUserAdderForm,
+         displayUsers,
+         displayRevokeUserByName,
+         displayRestoreUserByName,
+         displaySetUserDeletableByName,
+         displayDeleteUserByName,
+         waitForKeyPress  } from './userAdderForm.mjs';
+
+let terminalReady = false;
+let terminalResolve;
+let terminalPromise = new Promise(resolve => {
+  terminalResolve = resolve;
+});
+
+
+const { terminal } = pkg;
+
+terminal.on('key', function (name, matches, data) {
+    if (name === 'CTRL_C') {
+        terminal.grabInput(false);  // Stop grabbing input
+        terminal.green('\nCTRL+C received, exiting...\n');
+        process.exit(0);  // Safely exit the process
+    }
+});
+
+// Derive __dirname equivalent in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+let progressBar;
+
+
+
+
+// Initialize the terminal and progress bar
+async function initializeTerminal() {
+    try {
+        terminal.clear();
+        terminal.green("Welcome to the Syphax backend server, sit back and relax.\n");
+        terminal.grabInput({ mouse: 'button' });
+
+        progressBar = terminal.progressBar({
+            width: 80,
+            title: 'Initialization Progress:',
+            eta: true,
+            percent: true
+        });
+
+        // Your actual initialization logic here
+        await new Promise(resolve => setTimeout(resolve, 100));  // Simulated delay
+
+        terminalReady = true;
+        terminalResolve(terminal);
+    } catch (error) {
+        terminalResolve(); // Resolve the promise even on failure to avoid hanging
+        console.error("Failed to initialize terminal:", error);
+    }
+    return progressBar;
+}
+
+
+// Update the progress bar with a specified progress and an optional delay
+async function updateProgressBar(progress, delay = 0) {
+    await new Promise(resolve => setTimeout(resolve, delay)); // Wait for the delay before updating
+    progressBar.update(progress);
+}
+
+function getTerminal() {
+    return new Promise((resolve, reject) => {
+        if (terminalReady) {
+            resolve(terminal);
+        } else {
+            // Wait for terminal to be ready
+            terminalPromise.then(resolve).catch(reject);
+        }
+    });
+}
+// Finalize initialization by displaying server running information
+function finalizeInitialization(port) {
+    progressBar.stop();
+    terminal.moveTo(1, 3);
+    terminal.green(`Syphax backend server running at http://localhost:${port}\n`);
+
+    // Construct the path to the image file
+    const imagePath = path.join(__dirname, "../assets/images/Cyberpunk.png");
+
+    // Attempt to draw the image, wrapped in try-catch for error handling
+    try {
+        terminal.drawImage(imagePath, {
+            shrink: {
+                width: 100,
+                height: 100
+                }
+        });
+
+        terminal.slowTyping(
+            'Everything seems to run smoothly boss!\n',
+            { flashStyle: terminal.brightWhite, delay: 60 },
+            function () {
+
+                displayMenu(true);
+            }
+        );
+    } catch (error) {
+        console.error("Failed to draw image:", error);
+    }
+}
+
+async function displayMenu(clearScreen) {
+    if (clearScreen) {
+        terminal.clear();
+    }
+    const menuItems = ['Show parameters', 'Check DB', 'Show users', 'Revoke user', 'Restore user', 'Create user', 'Set user deletable', 'Delete user', 'Exit'];
+    terminal.singleColumnMenu(menuItems, { selectedIndex: 0 }, (error, response) => {
+        if (error) {
+            terminal.red('An error occurred: ' + error.message + '\n');
+            return;
+        }
+        terminal.green(`You selected: ${response.selectedText}\n`);
+
+        switch (response.selectedIndex) {
+            case 0:
+                terminal.yellow('Placeholder for show parameters.\n');
+                waitForKeyPress(terminal);
+                break;
+            case 1:
+                terminal.yellow('Checking the database:\n');
+                checkDb(terminal);
+                break;
+            case 2:
+                displayUsers(terminal);
+                break;
+            case 3:
+                terminal.yellow('Revoking a user:\n');
+                displayRevokeUserByName(terminal);
+                break;
+            case 4:
+                terminal.yellow('Restoring a user.\n');
+                displayRestoreUserByName(terminal);
+                break;
+            case 5:
+                terminal.yellow('Adding a new user:\n');
+                showUserAdderForm(terminal);
+                break;
+            case 6:
+                terminal.yellow('Set user delatable\n');
+                displaySetUserDeletableByName(terminal);
+                break;
+            case 7:
+                terminal.yellow('Delete user.\n');
+                displayDeleteUserByName(terminal);
+                break;
+            case 8:
+                terminal.yellow('Exiting\n');
+                process.exit(0);
+                break;
+            default:
+                terminal.red('No valid option selected.\n');
+                waitForKeyPress(terminal);
+        }
+    });
+}
+
+function displayError(clearScreen,message) {
+    if (clearScreen) {
+        terminal.clear();
+    }
+    terminal.red(message);
+}
+
+function displaySucces(clearScreen,message) {
+    if (clearScreen) {
+        terminal.clear();
+    }
+    terminal.green(message);
+}
+
+
+// Ensure all functions I need are correctly exported
+
+export { initializeTerminal, updateProgressBar, finalizeInitialization, getTerminal,  displayMenu, displayError, displaySucces};
+
+
+backEnd/terminalUi/userAdderForm.mjs
+backEnd/terminalUi/inputField.mjs
+
+// role: furnish a simple terminal ui input field for the backend administration
+
+export async function inputField(terminal, prompt, options = {}) {
+    terminal(prompt);
+    const input = await terminal.inputField(options).promise;
+    terminal('\n');
+    return input;
+}
+
+
+backEnd/routes : Contains all the backend route handlers for the API.
+backEnd/routes/api : Contains API route handlers for the Syphax backend server.
+backEnd/routes/api/auth : ontains authentication-related API route handlers.
+backEnd/routes/api/auth/auth.mjs
+
+// role: Defines and handles API routes related to authentication for the Syphax backend server.
+
+// Import the express module to create router instances.
+import express from "express";
+// Import specific controller functions from the AuthController.
+import {
+  login,
+  logoutController,
+  verifyTokenController,
+} from "../../../controllers/api/AuthController.mjs";
+
+// Create a new router object to handle routes under a specific path.
+const router = express.Router();
+
+// Middleware to parse JSON bodies. This lets us handle raw JSON data sent in requests.
+router.use(express.json());
+
+// Middleware to parse URL-encoded bodies. `extended: true` allows for rich data objects.
+router.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+/**
+ * Route that handles POST requests on "/login". It uses the `login` function from the imported controllers.
+ */
+router.post("/login", login);
+
+/**
+ * Route that handles GET requests on "/verifyToken". It uses the `verifyTokenController` function from the imported controllers.
+ */
+router.get("/verifyToken", verifyTokenController);
+
+/**
+ * Route that handles GET requests on "/logout". It uses the `logoutController` function from the imported controllers.
+ */
+router.get("/logout", logoutController);
+
+/**
+ * Catch-all route for any other GET requests not previously matched.
+ * Responds with a 404 status code and a JSON object describing the error.
+ */
+router.get("*", function (req, res) {
+  res.status(404).json({
+    success: false,
+    message: "",
+    data: null,
+    error: {
+      code: 404,
+      message: "Page not found!",
+    },
+  });
+});
+
+// Export the router as the default export of this module.
+export default router;
+
+
+backEnd/routes/web : 
+backEnd/routes/web/main.mjs
+
+// role: Defines and handles API routes for the Syphax backend server, including middleware for authentication and error handling.
+
+// Import the express module to use its functionalities for routing and middleware.
+import express from "express";
+// Import a controller function to handle requests for dummy data.
+import { dummyDataController } from "../../controllers/api/MainController.mjs";
+// Import middleware that verifies tokens to secure routes.
+import { verifyTokenMiddleware } from "../../authentificationServices/tokenHelper.mjs";
+
+// Create a new router object to handle routes under a specific path prefix.
+const router = express.Router();
+
+// Middleware to parse JSON bodies. This allows us to handle JSON input in requests.
+router.use(express.json());
+
+// Middleware to parse URL-encoded bodies with the setting `extended: true`.
+// This allows for objects and arrays to be URL-encoded which the querystring library does not allow.
+router.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+/**
+ * Route that handles GET requests on "/dummydata".
+ * Uses the `verifyTokenMiddleware` to authenticate requests before handling them with `dummyDataController`.
+ */
+router.get("/dummydata", verifyTokenMiddleware, dummyDataController);
+
+/**
+ * Catch-all route for any other GET requests not previously handled.
+ * Responds with a 404 status code and a JSON object describing the error.
+ */
+router.get("*", function (req, res) {
+  res.status(404).json({
+    success: false,
+    message: "",
+    data: null,
+    error: {
+      code: 404,
+      message: "Page not found!",
+    },
+  });
+});
+
+// Export the configured router as the default export of this module.
+export default router;
+
+
+backEnd/db : Contains database access tools and models for interacting with the backend database.
+backEnd/db/authModel.mjs
+
+// role: retrieve a user from the db to check its existence and its status. A part of the security.
+
+// Import the database pool object from the configuration file
+import pool from "./userDbManager.mjs";
+
+/**
+ * Fetches a user from the database by their email.
+ *
+ * @param {string} email - The email of the user to fetch.
+ * @returns {Object|null} - The user object if found, otherwise null.
+ */
+export const getUserByEmail = async (email) => {
+  if (!email) { // Check if the email input is null or undefined, and return null if it is
+    return null;
+  }
+
+  try {
+    const authenticated = await pool.query(
+      "SELECT * from user WHERE u_email = ? AND u_deleted_status = 0 AND u_status = 1",
+      [email]
+    ); // Perform a SQL query to find the user in the database who matches the given email and has not been deleted (`u_deleted_status = 0`) and is active (`u_status = 1`)
+    const [rows] = authenticated; // Destructure the result to get the rows from the query result
+
+    if (Object.keys(rows).length === 0) { // Check if the query returned any rows; if none, return null
+      return null;
+    }
+    return rows[0]; // Return the first row of the results (the user data)
+  } catch (error) {
+    return null; // If an error occurs during the database operation, return null
+  }
+};
+
+/**
+ * Fetches a user from the database by their user ID.
+ *
+ * @param {number} refId - The user ID of the user to fetch.
+ * @returns {Object|null} - The user object if found, otherwise null.
+ */
+export const getUserByUserId = async (refId) => {
+  if (!refId) { // Check if the reference ID input is null or undefined, and return null if it is
+    return null;
+  }
+
+  try {
+    const authenticated = await pool.query(
+      "SELECT * from user WHERE u_user_id = ? AND u_deleted_status = 0 AND u_status = 1",
+      [refId]
+    ); // Perform a SQL query to find the user in the database who matches the given user ID and has not been deleted (`u_deleted_status = 0`) and is active (`u_status = 1`)
+    const [rows] = authenticated; // Destructure the result to get the rows from the query result
+
+    if (Object.keys(rows).length === 0) { // Check if the query returned any rows; if none, return null
+      return null;
+    }
+    return rows[0]; // Return the first row of the results (the user data)
+  } catch (error) {
+    return null; // If an error occurs during the database operation, return null
+  }
+};
+
+
+backEnd/db/userDbManager.mjs
+
+// role: helper functions to create, remove, revoke, restore, etc... a user inside the db (administration)
+
+// Import what is needed to generate unique ids
+import { v4 as uuidv4 } from 'uuid';
+// Import a crypto library for hashing passwords
+import bcrypt from "bcrypt";
+// Import the mysql module with promise support
+import mysql from "mysql2/promise";
+import { getTerminal, displayMenu } from '../terminalUi/terminalUi.mjs'; // Import terminal UI functions
+import { waitForKeyPress } from '../terminalUi/userAdderForm.mjs'; // Import function to wait for key press
+import { DBIP, DBNAME, DBUSER, DBPASSWORD, CONNECTLIMIT, DBUSERTABLE } from '../mainServer/config.mjs'; // Import database configuration
+
+// Create a noDbPool with no DB in case we need to recreate the db
+const noDbPool = mysql.createPool({
+    host: DBIP, // Database server address
+    user: DBUSER, // Database user based on application mode (production or development)
+    password: DBPASSWORD, // DB password based on application mode
+    waitForConnections: true, // When no connections are available, wait rather than immediately throwing an error
+    connectionLimit: CONNECTLIMIT || 10, // Maximum number of connections to create at once (fallback is 10)
+    queueLimit: 0 // Maximum number of connection requests the pool will queue before returning an error
+});
+
+// Create a connection pool with MySQL database parameters
+const pool = mysql.createPool({
+  host: DBIP, // Database server address
+  user: DBUSER, // Database user based on application mode (production or development)
+  password: DBPASSWORD, // DB password based on application mode
+  database: DBNAME, // Determine which database to connect to based on application mode
+  waitForConnections: true, // When no connections are available, wait rather than immediately throwing an error
+  connectionLimit: CONNECTLIMIT || 10, // Maximum number of connections to create at once (fallback is 10)
+  queueLimit: 0 // Maximum number of connection requests the pool will queue before returning an error
+});
+
+/**
+ * Creates the user table if it does not exist.
+ *
+ * @param {Object} pool - The MySQL connection pool.
+ * @param {string} tableName - The name of the table to create.
+ * @returns {Promise<void>}
+ */
+async function createUserTable(pool, tableName) {
+    await pool.query(`
+        CREATE TABLE ${tableName} (
+            id int NOT NULL AUTO_INCREMENT,
+            u_user_id varchar(255) DEFAULT '',
+            u_name varchar(255) NOT NULL,
+            u_email varchar(255) NOT NULL,
+            u_mobile bigint(20) NULL,
+            u_password varchar(255) NULL,
+            u_image varchar(150) DEFAULT '',
+            u_status int(11) DEFAULT 1,
+            u_deleted_status int(11) DEFAULT 0,
+            u_created_at timestamp DEFAULT current_timestamp(),
+            u_updated_at timestamp NULL,
+            PRIMARY KEY(id)
+        );
+    `);
+}
+
+/**
+ * Checks and manages the database and table setup.
+ *
+ * @param {Object} aTerminal - The terminal interface.
+ * @returns {Promise<void>}
+ */
+export async function checkDb(aTerminal) {
+    aTerminal.clear(); // Clear the terminal
+    try {
+        // Check if the database exists
+        const dbResult = await noDbPool.query(`SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DBNAME}'`);
+        if (!dbResult[0].length) {
+            aTerminal.yellow(`Database '${DBNAME}' does not exist. Creating...\n`);
+            try {
+                // Temporarily connect to a default database to execute the creation
+                aTerminal.green(`Database '${DBNAME}' has been successfully created...\n`);
+                await noDbPool.query(`CREATE DATABASE IF NOT EXISTS ${DBNAME}`);
+            } catch (error) {
+                throw new Error(`Failed to create database: ${error.message}`);
+            }
+        } else {
+            aTerminal.green(`Database '${DBNAME}' exists.\n`);
+        }
+
+        // Check if the table exists within the specified database
+        const tableResult = await pool.query(`SHOW TABLES LIKE '${DBUSERTABLE}'`);
+        if (!tableResult[0].length) {
+            aTerminal.yellow(`Table '${DBUSERTABLE}' does not exist. Creating...\n`);
+            await createUserTable(pool, DBUSERTABLE);
+            aTerminal.green("Table created successfully.\n");
+        } else {
+            aTerminal.green(`Table '${DBUSERTABLE}' exists.\n`);
+        }
+
+        // Query to check user count
+        const [results] = await pool.query(`SELECT COUNT(*) AS userCount FROM ${DBUSERTABLE}`);
+        const userCount = results[0].userCount;
+        aTerminal.green(`User count: ${userCount}\n`);
+
+    } catch (error) {
+        aTerminal.red(`Error checking database: ${error.message}\n`);
+        if (error.message.includes("Unknown database")) {
+            aTerminal.magenta(`last attempt to create the DB ${DBNAME}\n`);
+            await createUserDB(pool, DBNAME);
+        }
+    }
+
+    aTerminal.yellow("Press 'Enter' to return to the menu...");
+    aTerminal.inputField({}, (err, input) => {
+        displayMenu(true);
+    });
+}
+
+/**
+ * Adds a new user to the database.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} u_name - User's name.
+ * @param {string} u_email - User's email.
+ * @param {string} u_mobile - User's mobile number.
+ * @param {string} plainPassword - User's plain text password.
+ * @param {string} u_image_path - Path to the user's image.
+ * @returns {Promise<void>}
+ */
+export async function addUser(terminal, u_name, u_email, u_mobile, plainPassword, u_image_path) {
+    try {
+        const u_user_id = uuidv4(); // Generate a UUID for the user ID
+        const saltRounds = 10; // Number of salt rounds for hashing
+        const hashedPassword = await bcrypt.hash(plainPassword, saltRounds); // Hash the user's password
+
+        const query = `
+        INSERT INTO ${DBUSERTABLE} (
+          u_user_id, 
+          u_name, 
+          u_email, 
+          u_mobile, 
+          u_password, 
+          u_image
+        ) VALUES (?, ?, ?, ?, ?, ?);
+      `;
+
+        const values = [u_user_id, u_name, u_email, u_mobile, hashedPassword, u_image_path]; // Values to insert into the user table
+        const [result] = await pool.query(query, values); // Execute the query with the provided values
+
+        terminal.green(`User successfully added with UUID: ${u_user_id}\n`); // Output success message
+        return result; // Return the result of the query
+    } catch (error) {
+        terminal.red(`Error adding user: ${error.message}\n`); // Output error message
+        return null; // Return null if an error occurs
+    }
+}
+
+/**
+ * Retrieves all users from the database.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @returns {Promise<Array>} An array of user objects.
+ */
+export async function showUsers(terminal) {
+    try {
+        const query = `SELECT * FROM ${DBUSERTABLE};`; // Query to select all users
+        const [rows] = await pool.query(query); // Execute the query
+
+        terminal.green(`Retrieved ${rows.length} users from the database.\n`); // Output success message
+        return rows; // Return the rows of the query result
+    } catch (error) {
+        terminal.red(`Error retrieving users: ${error.message}\n`); // Output error message
+        return []; // Return an empty array if an error occurs
+    }
+}
+
+/**
+ * Revokes a user by name by setting their status to inactive (0).
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to revoke.
+ * @returns {Promise<void>}
+ */
+export async function revokeUserByName(terminal, userName) {
+    try {
+        // Attempt to revoke user by exact name
+        let query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_status = 0
+        WHERE u_name = ?;
+      `;
+
+        let values = [userName];
+        let [result] = await pool.query(query, values);
+
+        if (result.affectedRows === 0) {
+            terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+            // Perform a Soundex search for similar names
+            terminal.yellow('Performing a Soundex search for similar names...\n');
+            query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+            const [rows] = await pool.query(query, values);
+
+            if (rows.length === 0) {
+                terminal.red('No similar names found.\n');
+                waitForKeyPress(terminal);
+                return null;
+            } else {
+                terminal.cyan('Found similar names:\n');
+                const similarNames = rows.map(row => row.u_name);
+                similarNames.forEach((name, index) => {
+                    terminal.cyan(`${index + 1}: ${name}\n`);
+                });
+
+                // Ask the user to select a name from the list
+                terminal('Select a user by number: ');
+                const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+                if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                    terminal.red('Invalid selection.\n');
+                    return null;
+                }
+
+                const selectedName = similarNames[selectedNumber];
+                terminal.yellow(`Revoking user '${selectedName}'...\n`);
+
+                // Attempt to revoke the selected user
+                values = [selectedName];
+                query = `
+            UPDATE ${DBUSERTABLE}
+            SET u_status = 0
+            WHERE u_name = ?;
+          `;
+                [result] = await pool.query(query, values);
+
+                if (result.affectedRows === 0) {
+                    terminal.red(`Failed to revoke user '${selectedName}'.\n`);
+                } else {
+                    terminal.green(`User '${selectedName}' successfully revoked.\n`);
+                }
+            }
+        } else {
+            terminal.green(`User '${userName}' successfully revoked.\n`);
+        }
+
+        return result;
+    } catch (error) {
+        terminal.red(`Error revoking user: ${error.message}\n`);
+        return null;
+    }
+}
+
+/**
+ * Restores a user by name by setting their status to active (1).
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to restore.
+ * @returns {Promise<void>}
+ */
+export async function restoreUserByName(terminal, userName) {
+    try {
+        // Attempt to restore user by exact name
+        let query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_status = 1
+        WHERE u_name = ?;
+      `;
+
+        let values = [userName];
+        let [result] = await pool.query(query, values);
+
+        if (result.affectedRows === 0) {
+            terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+            // Perform a Soundex search for similar names
+            terminal.yellow('Performing a Soundex search for similar names...\n');
+            query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+            const [rows] = await pool.query(query, values);
+
+            if (rows.length === 0) {
+                terminal.red('No similar names found.\n');
+                waitForKeyPress(terminal);
+                return null;
+            } else {
+                terminal.cyan('Found similar names:\n');
+                const similarNames = rows.map(row => row.u_name);
+                similarNames.forEach((name, index) => {
+                    terminal.cyan(`${index + 1}: ${name}\n`);
+                });
+
+                // Ask the user to select a name from the list
+                terminal('Select a user by number: ');
+                const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+                if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                    terminal.red('Invalid selection.\n');
+                    return null;
+                }
+
+                const selectedName = similarNames[selectedNumber];
+                terminal.yellow(`Restoring user '${selectedName}'...\n`);
+
+                // Attempt to restore the selected user
+                values = [selectedName];
+                query = `
+            UPDATE ${DBUSERTABLE}
+            SET u_status = 1
+            WHERE u_name = ?;
+          `;
+                [result] = await pool.query(query, values);
+
+                if (result.affectedRows === 0) {
+                    terminal.red(`Failed to restore user '${selectedName}'.\n`);
+                } else {
+                    terminal.green(`User '${selectedName}' successfully restored.\n`);
+                }
+            }
+        } else {
+            terminal.green(`User '${userName}' successfully restored.\n`);
+        }
+
+        return result;
+    } catch (error) {
+        terminal.red(`Error restoring user: ${error.message}\n`);
+        return null;
+    }
+}
+
+/**
+ * Deletes a user by name by setting their deleted status to true (1).
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to delete.
+ * @returns {Promise<void>}
+ */
+export async function setUserDeletableByName(terminal, userName) {
+    try {
+        // Attempt to delete user by exact name
+        let query = `
+        UPDATE ${DBUSERTABLE}
+        SET u_deleted_status = 1
+        WHERE u_name = ?;
+      `;
+
+        let values = [userName];
+        let [result] = await pool.query(query, values);
+
+        if (result.affectedRows === 0) {
+            terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+            // Perform a Soundex search for similar names
+            terminal.yellow('Performing a Soundex search for similar names...\n');
+            query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+            const [rows] = await pool.query(query, values);
+
+            if (rows.length === 0) {
+                terminal.red('No similar names found.\n');
+                waitForKeyPress(terminal);
+                return null;
+            } else {
+                terminal.cyan('Found similar names:\n');
+                const similarNames = rows.map(row => row.u_name);
+                similarNames.forEach((name, index) => {
+                    terminal.cyan(`${index + 1}: ${name}\n`);
+                });
+
+                // Ask the user to select a name from the list
+                terminal('Select a user by number: ');
+                const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+                if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                    terminal.red('Invalid selection.\n');
+                    return null;
+                }
+
+                const selectedName = similarNames[selectedNumber];
+                terminal.yellow(`Setting user deletable '${selectedName}'...\n`);
+
+                // Attempt to delete the selected user
+                values = [selectedName];
+                query = `
+            UPDATE ${DBUSERTABLE}
+            SET u_deleted_status = 1
+            WHERE u_name = ?;
+          `;
+                [result] = await pool.query(query, values);
+
+                if (result.affectedRows === 0) {
+                    terminal.red(`Failed to set user deletable '${selectedName}'.\n`);
+                } else {
+                    terminal.green(`User '${selectedName}' successfully set as deletable.\n`);
+                }
+            }
+        } else {
+            terminal.green(`User '${userName}' successfully set as deletable.\n`);
+        }
+
+        return result;
+    } catch (error) {
+        terminal.red(`Error deleting user: ${error.message}\n`);
+        return null;
+    }
+}
+
+/**
+ * Permanently deletes a user by name from the database.
+ * If the exact name is not found, performs a Soundex search to find similar names.
+ *
+ * @param {Object} terminal - The terminal interface.
+ * @param {string} userName - The name of the user to delete.
+ * @returns {Promise<void>}
+ */
+export async function deleteUserByName(terminal, userName) {
+    try {
+        // Attempt to delete user by exact name
+        let query = `
+        DELETE FROM ${DBUSERTABLE}
+        WHERE u_name = ?;
+      `;
+
+        let values = [userName];
+        let [result] = await pool.query(query, values);
+
+        if (result.affectedRows === 0) {
+            terminal.red(`No user found with the exact name '${userName}'.\n`);
+
+            // Perform a Soundex search for similar names
+            terminal.yellow('Performing a Soundex search for similar names...\n');
+            query = `
+          SELECT u_name
+          FROM ${DBUSERTABLE}
+          WHERE SOUNDEX(u_name) = SOUNDEX(?);
+        `;
+            const [rows] = await pool.query(query, values);
+
+            if (rows.length === 0) {
+                terminal.red('No similar names found.\n');
+                waitForKeyPress(terminal);
+                return null;
+            } else {
+                terminal.cyan('Found similar names:\n');
+                const similarNames = rows.map(row => row.u_name);
+                similarNames.forEach((name, index) => {
+                    terminal.cyan(`${index + 1}: ${name}\n`);
+                });
+
+                // Ask the user to select a name from the list
+                terminal('Select a user by number: ');
+                const selectedNumber = await new Promise(resolve => terminal.inputField((_, input) => resolve(Number(input.trim()) - 1)));
+
+                if (selectedNumber < 0 || selectedNumber >= similarNames.length) {
+                    terminal.red('Invalid selection.\n');
+                    return null;
+                }
+
+                const selectedName = similarNames[selectedNumber];
+                terminal.yellow(`Deleting user '${selectedName}'...\n`);
+
+                // Attempt to delete the selected user
+                values = [selectedName];
+                query = `
+            DELETE FROM ${DBUSERTABLE}
+            WHERE u_name = ?;
+          `;
+                [result] = await pool.query(query, values);
+
+                if (result.affectedRows === 0) {
+                    terminal.red(`Failed to delete user '${selectedName}'.\n`);
+                } else {
+                    terminal.green(`User '${selectedName}' successfully deleted.\n`);
+                }
+            }
+        } else {
+            terminal.green(`User '${userName}' successfully deleted.\n`);
+        }
+
+        // Reorganize the table indexes after deletion
+        await pool.query(`OPTIMIZE TABLE ${DBUSERTABLE}`);
+        terminal.green(`Table indexes reorganized successfully.\n`);
+
+        return result;
+    } catch (error) {
+        terminal.red(`Error deleting user: ${error.message}\n`);
+        return null;
+    }
+}
+
+// Export the pool for use elsewhere in the application
+export default pool;
+

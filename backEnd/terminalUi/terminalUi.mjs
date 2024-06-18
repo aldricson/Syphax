@@ -1,5 +1,4 @@
-// terminalUI.js
-// Import necessary modules
+// role: initialize the terminal ui stuff and furnish the main menu for the administrator
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pkg from 'terminal-kit';

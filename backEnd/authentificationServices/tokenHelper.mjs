@@ -1,3 +1,5 @@
+// role: Helper functions and middleware for verifying JWT tokens and handling authentication for the Syphax backend server.
+
 // Imports the 'verifyRefreshToken' function from a local jwtService module to handle token verification.
 import { verifyRefreshToken } from "./jwtService.mjs";
 // Imports the 'sendErrorResponse' function from a global utility module to handle error responses uniformly.
@@ -6,7 +8,7 @@ import { sendErrorResponse } from "../globals/globals.mjs";
 import { sendMessageToClient } from '../mainServer/websocketUtils.mjs';
 
 /**
- * @brief Middleware to verify JWT tokens for routes requiring authentication.
+ * Middleware to verify JWT tokens for routes requiring authentication.
  * 
  * This middleware function verifies the JWT token provided in the request.
  * If the token is valid and authentication succeeds, the request proceeds to the next middleware or route handler.
@@ -44,7 +46,7 @@ export const verifyTokenMiddleware = async (req, res, next) => {
 };
 
 /**
- * @brief Function to verify JWT tokens for static routes.
+ * Function to verify JWT tokens for static routes.
  * 
  * This function verifies the JWT token provided in the request without passing through the middleware chain.
  * It is typically used for static routes that require user verification.

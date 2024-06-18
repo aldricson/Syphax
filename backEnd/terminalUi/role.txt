@@ -1,0 +1,1 @@
+Contains terminal UI components for managing the backend server, including user administration.For security reason, there will be no administartion access from the front end

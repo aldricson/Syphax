@@ -1,3 +1,5 @@
+// role: Defines and handles API routes related to authentication for the Syphax backend server.
+
 // Import the express module to create router instances.
 import express from "express";
 // Import specific controller functions from the AuthController.
@@ -20,18 +22,26 @@ router.use(
   })
 );
 
-// Route that handles POST requests on "/login". It uses the `login` function from the imported controllers.
+/**
+ * Route that handles POST requests on "/login". It uses the `login` function from the imported controllers.
+ */
 router.post("/login", login);
 
-// Route that handles GET requests on "/verifyToken". It uses the `verifyTokenController` function from the imported controllers.
+/**
+ * Route that handles GET requests on "/verifyToken". It uses the `verifyTokenController` function from the imported controllers.
+ */
 router.get("/verifyToken", verifyTokenController);
 
-// Route that handles GET requests on "/logout". It uses the `logoutController` function from the imported controllers.
+/**
+ * Route that handles GET requests on "/logout". It uses the `logoutController` function from the imported controllers.
+ */
 router.get("/logout", logoutController);
 
-// Catch-all route for any other GET requests not previously matched.
+/**
+ * Catch-all route for any other GET requests not previously matched.
+ * Responds with a 404 status code and a JSON object describing the error.
+ */
 router.get("*", function (req, res) {
-  // Respond with a 404 status code and a JSON object describing the error.
   res.status(404).json({
     success: false,
     message: "",

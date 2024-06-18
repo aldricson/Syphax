@@ -1,96 +1,91 @@
-// Import the authentication function from the authService.
-import { authenticateUser } from "../../authentificationServices/authSrv.mjs";
-// Import the function to verify refresh tokens from jwtService.
-import { verifyRefreshToken } from "../../authentificationServices/jwtService.mjs";
-// Import utility functions for handling dates, success, and error responses.
+// role: This file handles the login, token verification, and logout processes for user authentication.
+
+import { authenticateUser } from "../../authentificationServices/authSrv.mjs"; // Import the authentication function from the authService.
+import { verifyRefreshToken } from "../../authentificationServices/jwtService.mjs"; // Import the function to verify refresh tokens from jwtService.
 import {
-  dateTimeHandler,
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "../../globals/globals.mjs";
+  dateTimeHandler, // Import utility function for handling dates.
+  sendErrorResponse, // Import utility function for sending error responses.
+  sendSuccessResponse, // Import utility function for sending success responses.
+} from "../../globals/globals.mjs"; // Import utility functions from globals.
 
-// Define an asynchronous function 'login' for the login process.
+/**
+ * Handles the login process, authenticating the user and setting cookies.
+ *
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @returns {Object} - The response object indicating success or failure of login.
+ */
 export const login = async (req, res) => {
-  // Destructure email, password, and staySignedIn flag from the request body; default to empty object if none provided.
-  const { email, password, staySignedIn } = req.body || {};
+  const { email, password, staySignedIn } = req.body || {}; // Destructure email, password, and staySignedIn flag from the request body; default to empty object if none provided.
+  const errorMessage = "Failed to authenticate!"; // Define a default error message for failed authentication.
 
-  // Define a default error message for failed authentication.
-  const errorMessage = "Failed to authenticate!";
-
-  // Check if email or password is missing and return an error response if so.
-  if (!email || !password) {
-    return sendErrorResponse(req, res, 401, errorMessage);
+  if (!email || !password) { // Check if email or password is missing.
+    return sendErrorResponse(req, res, 401, errorMessage); // Return an error response if email or password is missing.
   }
 
-  // Initialize a variable to hold the expiry time of the token.
-  let expiryTime = "";
-  // Attempt to calculate the expiry time based on whether the user opted to stay signed in.
+  let expiryTime = ""; // Initialize a variable to hold the expiry time of the token.
   try {
     expiryTime = staySignedIn
-      ? dateTimeHandler(15, "daysEnd", "inc")  // Set expiry to end of 15th day.
-      : dateTimeHandler(1, "daysEnd", "inc");  // Set expiry to end of 1st day.
+      ? dateTimeHandler(15, "daysEnd", "inc")  // Set expiry to end of 15th day if staySignedIn is true.
+      : dateTimeHandler(1, "daysEnd", "inc");  // Set expiry to end of 1st day if staySignedIn is false.
   } catch (error) {}
 
-  // If calculating expiry time fails and it remains empty, exit the function early.
-  if (!expiryTime) {
-    return null;
+  if (!expiryTime) { // If calculating expiry time fails and it remains empty.
+    return null; // Exit the function early.
   }
 
-  // Authenticate the user with provided credentials and calculated expiry time.
-  const auth = await authenticateUser(email, password, expiryTime);
+  const auth = await authenticateUser(email, password, expiryTime); // Authenticate the user with provided credentials and calculated expiry time.
 
-  // Check if authentication was not successful or if any expected auth properties are missing.
-  if (!auth || !auth.user || !auth.refreshToken || !auth.accessToken) {
-    return sendErrorResponse(req, res, 401, errorMessage);
+  if (!auth || !auth.user || !auth.refreshToken || !auth.accessToken) { // Check if authentication was not successful or if any expected auth properties are missing.
+    return sendErrorResponse(req, res, 401, errorMessage); // Return an error response if authentication fails.
   }
 
-  // Set a cookie with the refresh token in the response, configure properties for security.
   res.cookie("yttmrtck", auth.refreshToken, {
     httpOnly: true,  // Prevents client-side JavaScript from reading the cookie.
     secure: process.env.APP_MODE === "prod" ? true : false,  // Use secure cookies in production.
     sameSite: "Lax",  // Lax sameSite setting to prevent CSRF.
     path: "/",  // The cookie is available to all paths.
     maxAge: expiryTime * 1000,  // Set cookie expiry time in milliseconds.
-  });
+  }); // Set a cookie with the refresh token in the response, configure properties for security.
 
-  // Attach the refresh token, access token, user data, and authentication status to the request object.
-  req.refreshToken = auth.refreshToken;
-  req.accessToken = auth.accessToken;
-  req.userData = auth.user;
-  req.authenticated = auth.authenticated;
+  req.refreshToken = auth.refreshToken; // Attach the refresh token to the request object.
+  req.accessToken = auth.accessToken; // Attach the access token to the request object.
+  req.userData = auth.user; // Attach the user data to the request object.
+  req.authenticated = auth.authenticated; // Attach the authentication status to the request object.
 
-  // Return a success response with the login success message and auth details.
-  return sendSuccessResponse(req, res, "Successfully logged in!", auth);
+  return sendSuccessResponse(req, res, "Successfully logged in!", auth); // Return a success response with the login success message and auth details.
 };
 
-// Define an asynchronous function to verify a token.
+/**
+ * Verifies the refresh token in the request and updates tokens if valid.
+ *
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Object} - The response object indicating success or failure of token verification.
+ */
 export const verifyTokenController = async (req, res, next) => {
-  // Verify the refresh token in the request.
-  const isVerified = await verifyRefreshToken(req);
-  // Check if token verification was successful and contains necessary data.
-  if (
-    isVerified &&
-    isVerified.authStatus === 1 &&
-    isVerified.data.accessToken &&
-    isVerified.data.userData
-  ) {
-    // Update the request with new token and user data if token was updated.
-    if (isVerified.updatedToken) {
-      req.accessToken = isVerified.data.accessToken;
-      req.userData = isVerified.data.userData;
+  const isVerified = await verifyRefreshToken(req); // Verify the refresh token in the request.
+  
+  if (isVerified && isVerified.authStatus === 1 && isVerified.data.accessToken && isVerified.data.userData) { // Check if token verification was successful and contains necessary data.
+    if (isVerified.updatedToken) { // Update the request with new token and user data if token was updated.
+      req.accessToken = isVerified.data.accessToken; // Update the request object with the new access token.
+      req.userData = isVerified.data.userData; // Update the request object with the new user data.
     }
-    // Return a success response stating the token is valid.
-    return sendSuccessResponse(req, res, "Token valid!");
+    return sendSuccessResponse(req, res, "Token valid!"); // Return a success response stating the token is valid.
   } else {
-    // Return an error response if token verification failed.
-    return sendErrorResponse(req, res, 401, "Verification failed!");
+    return sendErrorResponse(req, res, 401, "Verification failed!"); // Return an error response if token verification failed.
   }
 };
 
-// Define a function to handle user logout.
+/**
+ * Handles user logout by clearing the refresh token cookie.
+ *
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @returns {Object} - The response object indicating success of logout.
+ */
 export const logoutController = (req, res) => {
-  // Clear the refresh token cookie.
-  res.clearCookie("yttmrtck");
-  // Return a success response indicating successful logout.
-  return sendSuccessResponse(req, res, "Successfully logged out!");
+  res.clearCookie("yttmrtck"); // Clear the refresh token cookie.
+  return sendSuccessResponse(req, res, "Successfully logged out!"); // Return a success response indicating successful logout.
 };

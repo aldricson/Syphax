@@ -1,42 +1,54 @@
+/* role: Styles for the main application container and elements, including the root container, logo, and various utility classes */
+
+/* The root container styles */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 1280px; /* Set the maximum width of the container */
+  margin: 0 auto; /* Center the container horizontally */
+  padding: 2rem; /* Add padding around the container */
+  text-align: center; /* Center-align the text inside the container */
 }
 
+/* The logo styles */
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  height: 6em; /* Set the height of the logo */
+  padding: 1.5em; /* Add padding around the logo */
+  will-change: filter; /* Optimize the performance of filter changes */
+  transition: filter 300ms; /* Smooth transition for the filter property over 300ms */
 }
 
+/* Hover effect for the logo */
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa); /* Apply a drop shadow effect on hover */
+}
+
+/* Hover effect for the React logo */
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa); /* Apply a specific drop shadow effect for the React logo on hover */
+}
+
+/* Keyframes for spinning the logo */
 @keyframes logo-spin {
   from {
-    transform: rotate(0deg);
+    transform: rotate(0deg); /* Start rotation at 0 degrees */
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* End rotation at 360 degrees */
   }
 }
 
+/* Apply spinning animation to the second logo when the user prefers reduced motion */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+    animation: logo-spin infinite 20s linear; /* Spin the logo infinitely over 20 seconds */
   }
 }
 
+/* Card component styles */
 .card {
-  padding: 2em;
+  padding: 2em; /* Add padding around the card */
 }
 
+/* Styles for the "read the docs" link */
 .read-the-docs {
-  color: #888;
+  color: #888; /* Set the text color to a light grey */
 }

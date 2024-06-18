@@ -1,0 +1,1 @@
+Contains services for handling user authentication, including JWT token management and encryption.

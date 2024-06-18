@@ -1,68 +1,82 @@
+/* role: Defines global styles for the application, including typography, colors, and responsive design */
+
+/* Global styles applied to the root element */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; /* Set the primary font family */
+  line-height: 1.5; /* Set the line height for text */
+  font-weight: 400; /* Set the default font weight */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light dark; /* Support both light and dark color schemes */
+  color: rgba(255, 255, 255, 0.87); /* Set the default text color */
+  background-color: #242424; /* Set the default background color */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none; /* Disable font synthesis */
+  text-rendering: optimizeLegibility; /* Optimize text rendering for legibility */
+  -webkit-font-smoothing: antialiased; /* Apply anti-aliasing for smoother text on WebKit browsers */
+  -moz-osx-font-smoothing: grayscale; /* Apply grayscale font smoothing on macOS */
 }
 
+/* Styles for anchor (link) elements */
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-weight: 500; /* Set the font weight for links */
+  color: #646cff; /* Set the default link color */
+  text-decoration: inherit; /* Inherit text decoration (e.g., underline) from parent */
 }
+
+/* Hover effect for anchor (link) elements */
 a:hover {
-  color: #535bf2;
+  color: #535bf2; /* Change link color on hover */
 }
 
+/* Styles for the body element */
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  margin: 0; /* Remove default margin */
+  display: flex; /* Use flexbox for layout */
+  place-items: center; /* Center items vertically and horizontally */
+  min-width: 320px; /* Set the minimum width of the body */
+  min-height: 100vh; /* Set the minimum height to full viewport height */
 }
 
+/* Styles for h1 (heading 1) elements */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 3.2em; /* Set the font size for h1 */
+  line-height: 1.1; /* Set the line height for h1 */
 }
 
+/* Styles for button elements */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+  border-radius: 8px; /* Add rounded corners */
+  border: 1px solid transparent; /* Set a transparent border */
+  padding: 0.6em 1.2em; /* Add padding inside the button */
+  font-size: 1em; /* Set the font size */
+  font-weight: 500; /* Set the font weight */
+  font-family: inherit; /* Inherit font family from parent */
+  background-color: #1a1a1a; /* Set the background color */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: border-color 0.25s; /* Animate border color change */
 }
+
+/* Hover effect for button elements */
 button:hover {
-  border-color: #646cff;
+  border-color: #646cff; /* Change border color on hover */
 }
+
+/* Focus styles for button elements */
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto -webkit-focus-ring-color; /* Add outline on focus for accessibility */
 }
 
+/* Styles for light color scheme preference */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #213547; /* Set text color for light mode */
+    background-color: #ffffff; /* Set background color for light mode */
   }
   a:hover {
-    color: #747bff;
+    color: #747bff; /* Change link color on hover for light mode */
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #f9f9f9; /* Set button background color for light mode */
   }
 }

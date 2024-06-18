@@ -1,0 +1,1 @@
+Contains all the React components used in the Syphax frontend application.

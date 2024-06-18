@@ -1,3 +1,5 @@
+// role: Defines and handles API routes for the Syphax backend server, including middleware for authentication and error handling.
+
 // Import the express module to use its functionalities for routing and middleware.
 import express from "express";
 // Import a controller function to handle requests for dummy data.
@@ -19,12 +21,16 @@ router.use(
   })
 );
 
-// Define a route that handles GET requests on "/dummydata".
-// It uses the `verifyTokenMiddleware` to authenticate requests before handling them with `dummyDataController`.
+/**
+ * Route that handles GET requests on "/dummydata".
+ * Uses the `verifyTokenMiddleware` to authenticate requests before handling them with `dummyDataController`.
+ */
 router.get("/dummydata", verifyTokenMiddleware, dummyDataController);
 
-// Define a catch-all route for any other GET requests not previously handled.
-// This is useful for displaying a 404 Not Found error in JSON format.
+/**
+ * Catch-all route for any other GET requests not previously handled.
+ * Responds with a 404 status code and a JSON object describing the error.
+ */
 router.get("*", function (req, res) {
   res.status(404).json({
     success: false,

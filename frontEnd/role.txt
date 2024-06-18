@@ -1,0 +1,1 @@
+ Root directory of the frontEnd project, containing all frontend-related files and subdirectories.

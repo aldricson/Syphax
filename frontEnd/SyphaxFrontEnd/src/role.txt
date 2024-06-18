@@ -1,0 +1,1 @@
+Source directory for the Syphax frontend application, containing React components, stores, and styles.

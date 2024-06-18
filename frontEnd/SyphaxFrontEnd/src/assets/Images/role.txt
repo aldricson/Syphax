@@ -1,0 +1,1 @@
+Directory containing image assets for the frontend application.
