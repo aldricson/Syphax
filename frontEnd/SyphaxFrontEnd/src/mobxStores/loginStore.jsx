@@ -12,10 +12,10 @@ import authStore from './authStore'; // Import the authentication store
  */
 export class LoginStore {
   stayLogged = false; // Observable property to store the "stay logged in" status
-  loginSucces = false; // Observable property to store the login success status
+  loginSuccess = false; // Observable property to store the login success status
   stayLoggedAsText = 'No'; // Observable property to store the "stay logged in" status as text
   userEmail = ''; // Observable property to store the user's email
-  userPasssword = ''; // Observable property to store the user's password
+  userPassword = ''; // Observable property to store the user's password
   errorText = ''; // Observable property to store the error message
   errorBorder = '0px'; // Observable property to store the error border style
 
@@ -29,10 +29,10 @@ export class LoginStore {
       stayLogged: observable, // Make the stayLogged property observable
       stayLoggedAsText: observable, // Make the stayLoggedAsText property observable
       userEmail: observable, // Make the userEmail property observable
-      userPasssword: observable, // Make the userPasssword property observable
+      userPassword: observable, // Make the userPassword property observable
       errorText: observable, // Make the errorText property observable
       errorBorder: observable, // Make the errorBorder property observable
-      loginSucces: observable, // Make the loginSucces property observable
+      loginSuccess: observable, // Make the loginSuccess property observable
       onUserEmailChanged: action, // Make the onUserEmailChanged method an action
       onPasswordChanged: action, // Make the onPasswordChanged method an action
       onHandleStayLogged: action, // Make the onHandleStayLogged method an action
@@ -54,12 +54,12 @@ export class LoginStore {
   /**
    * Handles changes to the user password input field.
    * 
-   * Updates the userPasssword property with the new value from the input field.
+   * Updates the userPassword property with the new value from the input field.
    * 
    * @param {object} event - The event object from the input field.
    */
   onPasswordChanged = (event) => {
-    this.userPasssword = event.target.value; // Update the userPasssword state with the input value
+    this.userPassword = event.target.value; // Update the userPassword state with the input value
   };
 
   /**
@@ -70,23 +70,21 @@ export class LoginStore {
    */
   onSubmitLogin = async () => {
     try {
-      const response = await login(this.userEmail, this.userPasssword, this.stayLogged); // Send login request
+      const response = await login(this.userEmail, this.userPassword, this.stayLogged); // Send login request
       const data = response.auth; // Correctly access the auth object
       runInAction(() => {
         authStore.setToken(data.accessToken); // Set the authentication token in the authStore
         authStore.setUser(data.user); // Set the user information in the authStore
-        if (this.stayLogged) {
-          localStorage.setItem('SyphaxToken', data.accessToken); // Store the token in localStorage if "stay logged in" is checked
-        }
+        authStore.setStayLogged(this.stayLogged); // Set the stayLogged flag in the authStore
         this.errorText = ''; // Clear the error text
         this.errorBorder = '0px'; // Reset the error border style
-        this.loginSucces = true; // Set the login success status to true
+        this.loginSuccess = true; // Set the login success status to true
       });
     } catch (error) {
       runInAction(() => {
-        this.errorText = 'Login Failed !'; // Set the error text to "Login Failed !"
+        this.errorText = 'Login Failed!'; // Set the error text to "Login Failed!"
         this.errorBorder = '1px solid red'; // Set the error border style
-        this.loginSucces = false; // Set the login success status to false
+        this.loginSuccess = false; // Set the login success status to false
       });
       console.error('Login failed', error); // Log the error to the console
     }

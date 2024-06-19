@@ -25,6 +25,14 @@ import App from './App.jsx';
 import './index.css';
 
 /**
+ * Import the authentication store to initialize the authentication check.
+ * @module authStore
+ */
+import authStore from './mobxStores/authStore';
+
+authStore.checkAuth(); // Check authentication status on page load
+
+/**
  * Render the React application into the DOM.
  * 
  * This method creates a root DOM node, attaches the React application to it,

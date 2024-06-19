@@ -5,9 +5,9 @@ import './App.css';
 // Import the SignInForm component
 import SignInForm from './Components/SignInForm/SignInForm.jsx';
 // Import the DashBoard component
-import DashBoard from './Components/DashBoard/DashBoard.jsx';
-// Import the login store from MobX
-import { loginStore } from './mobxStores/loginStore.jsx';
+import ProtectedDashBoard from './Components/DashBoard/ProtectedDashBoard.jsx';
+// Import the authentication store from MobX
+import authStore from './mobxStores/authStore';
 // Import observer from MobX for observing state changes
 import { observer } from 'mobx-react';
 // Import the WebSocket instance
@@ -17,7 +17,7 @@ import socket from './webSockets/websocket.jsx';
  * App component.
  * 
  * This functional component is the main application component.
- * It observes the loginStore to conditionally render either the SignInForm or the DashBoard based on the login status.
+ * It observes the authStore to conditionally render either the SignInForm or the DashBoard based on the login status.
  * 
  * @returns {JSX.Element} The rendered application component.
  */
@@ -27,11 +27,11 @@ const App = observer(() => {
 
   return (
     <div>
-      {loginStore.loginSucces ? (
-        // If login is successful, render the DashBoard component
-        <DashBoard />
+      {authStore.token || authStore.user ? (
+        // If token and user are available, render the DashBoard component
+        <ProtectedDashBoard />
       ) : (
-        // If login is not successful, render the SignInForm component
+        // If token and user are not available, render the SignInForm component
         <SignInForm />
       )}
     </div>

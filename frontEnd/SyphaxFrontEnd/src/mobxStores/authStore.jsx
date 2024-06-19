@@ -1,32 +1,25 @@
 // role: MobX store for managing authentication state, including user information and token management.
 
-import { makeObservable, observable, action } from 'mobx'; // Import MobX functions for creating observable state and actions
+import { makeObservable, observable, action, runInAction } from 'mobx';
 
-/**
- * AuthStore class.
- * 
- * This class manages the authentication state, including the user token and user information.
- * It provides actions to set the token, set the user, and log out the user.
- */
 class AuthStore {
-  // Observable property to store the authentication token
-  token = localStorage.getItem('SyphaxToken') || null;
-  // Observable property to store the user information
-  user = null;
+  token = localStorage.getItem('SyphaxToken') || null; // Initialize token from localStorage if available
+  user = JSON.parse(localStorage.getItem('SyphaxUser')) || null; // Initialize user from localStorage if available
+  stayLogged = localStorage.getItem('SyphaxStayLogged') === 'true'; // Initialize stayLogged from localStorage if available
 
-  /**
-   * Constructor for AuthStore.
-   * 
-   * Makes the properties and methods observable and actionable using MobX.
-   */
   constructor() {
     makeObservable(this, {
       token: observable, // Make the token property observable
       user: observable, // Make the user property observable
+      stayLogged: observable, // Make the stayLogged property observable
       setToken: action, // Make the setToken method an action
       setUser: action, // Make the setUser method an action
+      setStayLogged: action, // Make the setStayLogged method an action
       logout: action, // Make the logout method an action
+      checkAuth: action, // Make the checkAuth method an action
+      checkAuthAndRedirect: action, // Make the checkAuthAndRedirect method an action
     });
+    this.checkAuth(); // Check authentication status on initialization
   }
 
   /**
@@ -38,11 +31,11 @@ class AuthStore {
    * @param {string|null} token - The authentication token.
    */
   setToken(token) {
-    this.token = token; // Update the token state
+    this.token = token;
     if (token) {
-      localStorage.setItem('SyphaxToken', token); // Store the token in localStorage if provided
+      localStorage.setItem('SyphaxToken', token); // Store token in localStorage
     } else {
-      localStorage.removeItem('SyphaxToken'); // Remove the token from localStorage if null
+      localStorage.removeItem('SyphaxToken'); // Remove token from localStorage
     }
   }
 
@@ -54,7 +47,24 @@ class AuthStore {
    * @param {object|null} user - The user information.
    */
   setUser(user) {
-    this.user = user; // Update the user state
+    this.user = user;
+    if (user) {
+      localStorage.setItem('SyphaxUser', JSON.stringify(user)); // Store user in localStorage
+    } else {
+      localStorage.removeItem('SyphaxUser'); // Remove user from localStorage
+    }
+  }
+
+  /**
+   * Sets the stayLogged flag.
+   * 
+   * Updates the stayLogged state with the provided flag.
+   * 
+   * @param {boolean} stayLogged - The stayLogged flag.
+   */
+  setStayLogged(stayLogged) {
+    this.stayLogged = stayLogged;
+    localStorage.setItem('SyphaxStayLogged', stayLogged); // Store stayLogged flag in localStorage
   }
 
   /**
@@ -63,11 +73,54 @@ class AuthStore {
    * Clears the authentication token and user information from the state and localStorage.
    */
   logout() {
-    this.setToken(null); // Clear the token
-    this.setUser(null); // Clear the user information
+    this.setToken(null); // Clear token
+    this.setUser(null); // Clear user information
+    localStorage.removeItem('SyphaxStayLogged'); // Remove stayLogged flag from localStorage
+  }
+
+  /**
+   * Checks the authentication status on page load.
+   * 
+   * Retrieves the token from localStorage, validates it with the backend,
+   * and updates the state accordingly.
+   */
+  async checkAuth() {
+    const token = localStorage.getItem('SyphaxToken');
+    if (token) {
+      try {
+        const response = await fetch('http://localhost:5010/api/auth/verifyToken', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Token validation failed');
+        }
+        const data = await response.json();
+        runInAction(() => {
+          this.setToken(token);
+          this.setUser(data.user);
+        });
+      } catch (error) {
+        console.error('Token validation error', error);
+        runInAction(() => {
+          this.logout();
+        });
+      }
+    }
+  }
+
+  /**
+   * Checks the authentication status and redirects to the login page if not authenticated.
+   */
+  async checkAuthAndRedirect() {
+    await this.checkAuth();
+    if (!this.token) {
+      window.location.href = '/login'; // Redirect to login page
+    }
   }
 }
 
-// Create an instance of AuthStore
 const authStore = new AuthStore();
-export default authStore; // Export the instance for use in other parts of the application
+export default authStore;

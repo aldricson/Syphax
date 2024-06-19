@@ -14,6 +14,7 @@ export const MESSAGE_EVENTS = {
   LOGIN_SUCCESS: 'loginSuccess', // Event for successful login
   LOGIN_FAILED: 'loginFailed', // Event for failed login
   TOKEN_EXPIRED: 'tokenExpired', // Event for expired access token
+  NEW_DATA_READY: 'newDataReady', // Event for new data ready
 };
 
 /**
@@ -24,4 +25,5 @@ export const MESSAGE_STRINGS = {
   LOGIN_SUCCESS: 'Login successful', // Message string for successful login
   LOGIN_FAILED: 'Login failed', // Message string for failed login
   TOKEN_EXPIRED: 'Your access token has expired', // Message string for expired access token
+  NEW_DATA_READY: 'New data is ready', // Message string for new data ready
 };

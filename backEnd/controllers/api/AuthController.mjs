@@ -1,12 +1,15 @@
 // role: This file handles the login, token verification, and logout processes for user authentication.
 
-import { authenticateUser } from "../../authentificationServices/authSrv.mjs"; // Import the authentication function from the authService.
-import { verifyRefreshToken } from "../../authentificationServices/jwtService.mjs"; // Import the function to verify refresh tokens from jwtService.
+// Import the authentication function from the authService.
+import { authenticateUser } from "../../authentificationServices/authSrv.mjs"; 
+// Import the function to verify refresh tokens from jwtService.
+import { verifyRefreshToken } from "../../authentificationServices/jwtService.mjs"; 
+// Import utility functions from globals.
 import {
-  dateTimeHandler, // Import utility function for handling dates.
-  sendErrorResponse, // Import utility function for sending error responses.
-  sendSuccessResponse, // Import utility function for sending success responses.
-} from "../../globals/globals.mjs"; // Import utility functions from globals.
+  dateTimeHandler, // Utility function for handling dates.
+  sendErrorResponse, // Utility function for sending error responses.
+  sendSuccessResponse, // Utility function for sending success responses.
+} from "../../globals/globals.mjs"; 
 
 /**
  * Handles the login process, authenticating the user and setting cookies.
@@ -28,10 +31,8 @@ export const login = async (req, res) => {
     expiryTime = staySignedIn
       ? dateTimeHandler(15, "daysEnd", "inc")  // Set expiry to end of 15th day if staySignedIn is true.
       : dateTimeHandler(1, "daysEnd", "inc");  // Set expiry to end of 1st day if staySignedIn is false.
-  } catch (error) {}
-
-  if (!expiryTime) { // If calculating expiry time fails and it remains empty.
-    return null; // Exit the function early.
+  } catch (error) {
+    return sendErrorResponse(req, res, 500, "Error calculating token expiry time."); // Return error response if calculating expiry time fails.
   }
 
   const auth = await authenticateUser(email, password, expiryTime); // Authenticate the user with provided credentials and calculated expiry time.

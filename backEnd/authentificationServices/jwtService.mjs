@@ -1,23 +1,30 @@
-// role: This file handles JWT token generation, verification, and refresh token logic for user authentication.
+// Importing necessary modules for JWT operations, file handling, and path manipulation
+import jwt from "jsonwebtoken"; // JWT library for token generation and verification
+import fs from "fs/promises"; // File system module with promise support for async operations
+import path from "path"; // Path module for handling and transforming file paths
 
-import jwt from "jsonwebtoken"; // Importing the jsonwebtoken library for JWT operations
-import fs from "fs/promises"; // Importing the file system promises API for reading files asynchronously
-import path from "path"; // Importing the path module to handle file paths
-import {
-  cryptoAESDecryption, // Importing the AES decryption function from the crypto service module
-  cryptoAESEncryption, // Importing the AES encryption function from the crypto service module
-} from "./cryptoService.mjs"; // Specifying the relative path to the crypto service module
+// Importing custom crypto functions for AES encryption and decryption
+import { cryptoAESDecryption, cryptoAESEncryption } from "./cryptoService.mjs"; 
 
-import { getUserByUserId } from "../db/authModel.mjs"; // Importing the function to get user data by user ID from the auth model
-import { sendMessageToClient } from "../mainServer/websocketUtils.mjs"; // Importing the function to send messages to client via websocket
-import { MESSAGE_EVENTS, MESSAGE_STRINGS } from "../globals/globalWebSocket.mjs"; // Import WebSocket constants
+// Importing function to get user data by user ID from the auth model
+import { getUserByUserId } from "../db/authModel.mjs"; 
 
+// Importing function to send messages to clients via WebSocket
+import { sendMessageToClient } from "../mainServer/websocketUtils.mjs"; 
 
-const rootDir = process.cwd(); // Getting the current working directory
-const privateKeyPath = path.join(rootDir, "./certs/jwtRS256.key"); // Constructing the path to the private key file
-const publicKeyPath = path.join(rootDir, "./certs/jwtRS256.key.pub"); // Constructing the path to the public key file
-const privateKey = await fs.readFile(privateKeyPath); // Reading the private key from the file system asynchronously
-const publicKey = await fs.readFile(publicKeyPath); // Reading the public key from the file system asynchronously
+// Importing WebSocket message events and strings constants
+import { MESSAGE_EVENTS, MESSAGE_STRINGS } from "../globals/globalWebSocket.mjs"; 
+
+// Getting the current working directory of the project
+const rootDir = process.cwd(); 
+
+// Constructing paths to the private and public key files used for signing and verifying JWTs
+const privateKeyPath = path.join(rootDir, "./certs/jwtRS256.key"); 
+const publicKeyPath = path.join(rootDir, "./certs/jwtRS256.key.pub");
+
+// Reading the private and public key files asynchronously
+const privateKey = await fs.readFile(privateKeyPath);
+const publicKey = await fs.readFile(publicKeyPath);
 
 /**
  * Signs the provided data into a JWT token.
@@ -27,17 +34,17 @@ const publicKey = await fs.readFile(publicKeyPath); // Reading the public key fr
  * @returns {string|null} - The generated JWT token or null if an error occurs.
  */
 export const sign = async (data, seconds = 30 * 60 * 60 * 24) => {
-  if (!data) { // Checking if the data is provided
-    return null; // Returning null if data is not provided
+  if (!data) { // Check if data is provided
+    return null; // Return null if no data is provided
   }
 
   try {
-    const options = { algorithm: "RS256", expiresIn: seconds }; // Setting the JWT options including algorithm and expiration time
+    const options = { algorithm: "RS256", expiresIn: seconds }; // JWT options including algorithm and expiration time
     const token = jwt.sign({ payload: data }, privateKey, options); // Signing the JWT token with the private key and options
-    return token; // Returning the generated token
+    return token; // Return the generated token
   } catch (error) {
-    console.error(error); // Logging any error that occurs during the token generation
-    return null; // Returning null if an error occurs
+    console.error(error); // Log any error that occurs during the token generation
+    return null; // Return null if an error occurs
   }
 };
 
@@ -49,8 +56,8 @@ export const sign = async (data, seconds = 30 * 60 * 60 * 24) => {
  * @returns {Object|null} - The decoded token payload or null if verification fails.
  */
 export const verifyToken = (token, socketId) => {
-  if (!token) { // Checking if the token is provided
-    return null; // Returning null if token is not provided
+  if (!token) { // Check if the token is provided
+    return null; // Return null if token is not provided
   }
 
   try {
@@ -64,10 +71,10 @@ export const verifyToken = (token, socketId) => {
       return null;
     }
 
-    return decodedToken;
+    return decodedToken; // Return the decoded token payload
   } catch (error) {
-    console.error(error); // Logging any error that occurs during token verification
-    return null; // Returning null if verification fails
+    console.error(error); // Log any error that occurs during token verification
+    return null; // Return null if verification fails
   }
 };
 

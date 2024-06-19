@@ -1,0 +1,52 @@
+/* role: Styles for the LED component, including layout, design, and animation. */
+
+/**
+ * .led-container
+ * 
+ * The main container for the LED component, providing a background gradient and padding.
+ * It ensures that the LED boxes are displayed within a visually appealing background.
+ */
+ .led-container {
+  background: linear-gradient(to bottom, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%); /* Creates a vertical gradient background */
+  padding: 20px; /* Adds padding around the container */
+}
+
+/**
+ * .led-box
+ * 
+ * The container for each individual LED, including the LED light and its label.
+ * It ensures proper spacing and alignment of the LED elements.
+ */
+.led-box {
+  height: 30px; /* Sets the height of the LED box */
+  width: 25%; /* Sets the width of the LED box to 25% of the container width */
+  margin: 10px 0; /* Adds vertical margin to separate LED boxes */
+  float: left; /* Aligns the LED boxes horizontally */
+  text-align: center; /* Centers the text inside the LED box */
+}
+
+/**
+ * .led-box p
+ * 
+ * Styles for the paragraph element inside the LED box, typically used for the LED label.
+ * It ensures the text is properly sized and centered.
+ */
+.led-box p {
+  font-size: 12px; /* Sets the font size for the label text */
+  margin: 1em; /* Adds margin around the text */
+}
+
+/**
+ * .led
+ * 
+ * Styles for the LED element itself, including size, shape, and cursor behavior.
+ * It ensures the LED light is displayed as a circular, clickable element with a smooth transition effect.
+ */
+.led {
+  margin: 0 auto; /* Centers the LED horizontally */
+  width: 24px; /* Sets the width of the LED */
+  height: 24px; /* Sets the height of the LED */
+  border-radius: 50%; /* Makes the LED circular */
+  cursor: pointer; /* Changes the cursor to a pointer when hovering over the LED */
+  transition: background-color 0.3s, box-shadow 0.3s; /* Adds a smooth transition effect for background color and box shadow changes */
+}

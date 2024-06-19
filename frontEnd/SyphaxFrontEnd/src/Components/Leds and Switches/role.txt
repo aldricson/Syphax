@@ -1,0 +1,1 @@
+Contains components all the visual leds or switches components
